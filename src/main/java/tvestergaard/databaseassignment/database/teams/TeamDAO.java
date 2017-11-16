@@ -59,4 +59,56 @@ public interface TeamDAO
 	 *                                  doesn't exist.
 	 */
 	List<User> getTeamMembers(String teamName) throws UnknownTeamNameException;
+
+	/**
+	 * Inserts the provided {@link Team} into the
+	 * {@link javax.sql.DataSource}. Relations to members of the {@link Team}
+	 * are also inserted.
+	 *
+	 * @param team The {@link Team} to insertTeam into the
+	 *             {@link javax.sql.DataSource}.
+	 * @throws DuplicateTeamException When a team with the provided id
+	 *                                already exists in the {@link javax.sql.DataSource}.
+	 */
+	void insertTeam(Team team) throws DuplicateTeamException;
+
+	/**
+	 * Updates the provided {@link Team} in the {@link javax.sql.DataSource}.
+	 *
+	 * @param team The {@link Team} to update in the
+	 *             {@link javax.sql.DataSource}.
+	 */
+	void updateTeam(Team team) throws UnknownTeamException;
+
+	/**
+	 * Deletes the provided {@link Team} from the provided
+	 * {@link javax.sql.DataSource}.
+	 *
+	 * @param team The {@link Team} to delete from the
+	 *             {@link javax.sql.DataSource}.
+	 * @throws UnknownTeamException When the {@link Team} doesn't exist in
+	 *                              the {@link javax.sql.DataSource}.
+	 */
+	void deleteTeam(Team team) throws UnknownTeamException;
+
+	/**
+	 * Deletes the {@link Team} with the provided id from the
+	 * {@link javax.sql.DataSource}.
+	 *
+	 * @param id The id of the {@link Team} to delete.
+	 * @throws UnknownTeamIdException When a {@link Team} with the provided
+	 *                                id doesn't exist in the {@link javax.sql.DataSource}.
+	 */
+	void deleteTeam(int id) throws UnknownTeamIdException;
+
+	/**
+	 * Deletes the {@link Team} with the provided teamName from the
+	 * {@link javax.sql.DataSource}.
+	 *
+	 * @param teamName The name of the {@link Team} to delete from the
+	 *                 {@link javax.sql.DataSource}.
+	 * @throws UnknownTeamNameException When a {@link Team} with the provided
+	 *                                  name doesn't exist in the {@link javax.sql.DataSource}.
+	 */
+	void deleteTeam(String teamName) throws UnknownTeamNameException;
 }
