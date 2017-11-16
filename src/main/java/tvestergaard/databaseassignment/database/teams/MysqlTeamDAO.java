@@ -42,7 +42,7 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 	@Override public List<Team> getTeams()
 	{
 		String sql = "SELECT * FROM teams LEFT JOIN team_members ON teams" +
-					 ".team_id = team_members.team_id LEFT JOIN users ON users.user_id = team_members.user_id ORDER BY teams.team_id;";
+					 ".team_id = team_members.team_id LEFT JOIN users ON users.user_id = team_members.user_id ORDER BY teams.team_id";
 
 		try {
 			Connection        connection     = newConnection();
@@ -102,14 +102,40 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 	 */
 	@Override public Team getTeam(int id) throws UnknownTeamIdException
 	{
+		String sql = "SELECT * FROM teams LEFT JOIN team_members ON teams" +
+					 ".team_id = team_members.team_id LEFT JOIN users ON " +
+					 "users.user_id = team_members.user_id WHERE teams" +
+					 ".team_id = ? ORDER BY teams.team_id";
+
 		try {
 			Connection        connection = newConnection();
-			PreparedStatement statement  = connection.prepareStatement("SELECT * FROM teams WHERE team_id = ?");
+			PreparedStatement statement  = connection.prepareStatement(sql);
 			statement.setInt(1, id);
 			ResultSet teams = statement.executeQuery();
 			if (!teams.first())
 				throw new UnknownTeamIdException();
-			return new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
+
+			Team team   = new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
+			int  userId = teams.getInt(USER_ID_COLUMN);
+			if (!teams.wasNull()) {
+				team.addMember(new User(userId, teams.getString
+						(USERNAME_COLUMN), teams.getString
+						(PASSWORD_COLUMN), teams.getBoolean
+						(ADMIN_COLUMN)));
+			}
+
+			while (teams.next()) {
+				userId = teams.getInt(USER_ID_COLUMN);
+				if (!teams.wasNull()) {
+					team.addMember(new User(userId, teams.getString
+							(USERNAME_COLUMN), teams.getString
+							(PASSWORD_COLUMN), teams.getBoolean
+							(ADMIN_COLUMN)));
+				}
+			}
+
+			return team;
+
 		} catch (UnknownTeamIdException e) {
 			throw e;
 		} catch (Exception e) {
@@ -128,15 +154,42 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 	 */
 	@Override public Team getTeam(String teamName) throws UnknownTeamNameException
 	{
+
+		String sql = "SELECT * FROM teams LEFT JOIN team_members ON teams" +
+					 ".team_id = team_members.team_id LEFT JOIN users ON " +
+					 "users.user_id = team_members.user_id WHERE " +
+					 "teams.team_name = ? ORDER BY teams.team_id";
+
 		try {
 			Connection        connection = newConnection();
-			PreparedStatement statement  = connection.prepareStatement("SELECT * FROM teams WHERE team_name = ?");
+			PreparedStatement statement  = connection.prepareStatement(sql);
 			statement.setString(1, teamName);
 			ResultSet teams = statement.executeQuery();
+
 			if (!teams.first())
 				throw new UnknownTeamNameException();
 
-			return new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
+			Team team   = new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
+			int  userId = teams.getInt(USER_ID_COLUMN);
+			if (!teams.wasNull()) {
+				team.addMember(new User(userId, teams.getString
+						(USERNAME_COLUMN), teams.getString
+						(PASSWORD_COLUMN), teams.getBoolean
+						(ADMIN_COLUMN)));
+			}
+
+			while (teams.next()) {
+				userId = teams.getInt(USER_ID_COLUMN);
+				if (!teams.wasNull()) {
+					team.addMember(new User(userId, teams.getString
+							(USERNAME_COLUMN), teams.getString
+							(PASSWORD_COLUMN), teams.getBoolean
+							(ADMIN_COLUMN)));
+				}
+			}
+
+			return team;
+
 		} catch (UnknownTeamNameException e) {
 			throw e;
 		} catch (Exception e) {
@@ -156,7 +209,38 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 	 */
 	@Override public List<User> getTeamMembers(int id) throws UnknownTeamIdException
 	{
-		return null;
+		String sql = "SELECT * FROM teams LEFT JOIN team_members ON teams" +
+					 ".team_id = team_members.team_id LEFT JOIN users ON " +
+					 "users.user_id = team_members.user_id WHERE teams" +
+					 ".team_id = ? ORDER BY teams.team_id";
+
+		try {
+			Connection        connection = newConnection();
+			PreparedStatement statement  = connection.prepareStatement(sql);
+			statement.setInt(1, id);
+			ResultSet  teams   = statement.executeQuery();
+			List<User> members = new ArrayList<>();
+			if (!teams.first())
+				throw new UnknownTeamIdException();
+
+			do {
+				System.out.println("run");
+				int userId = teams.getInt(USER_ID_COLUMN);
+				if (!teams.wasNull()) {
+					members.add(new User(userId, teams.getString
+							(USERNAME_COLUMN), teams.getString
+							(PASSWORD_COLUMN), teams.getBoolean
+							(ADMIN_COLUMN)));
+				}
+			} while (teams.next());
+
+			return members;
+
+		} catch (UnknownTeamIdException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
@@ -171,6 +255,37 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 	 */
 	@Override public List<User> getTeamMembers(String teamName) throws UnknownTeamNameException
 	{
-		return null;
+		String sql = "SELECT * FROM teams LEFT JOIN team_members ON teams" +
+					 ".team_id = team_members.team_id LEFT JOIN users ON " +
+					 "users.user_id = team_members.user_id WHERE " +
+					 "teams.team_name = ? ORDER BY teams.team_id";
+
+		try {
+			Connection        connection = newConnection();
+			PreparedStatement statement  = connection.prepareStatement(sql);
+			statement.setString(1, teamName);
+			ResultSet  teams   = statement.executeQuery();
+			List<User> members = new ArrayList<>();
+
+			if (!teams.first())
+				throw new UnknownTeamNameException();
+
+			do {
+				int userId = teams.getInt(USER_ID_COLUMN);
+				if (!teams.wasNull()) {
+					members.add(new User(userId, teams.getString
+							(USERNAME_COLUMN), teams.getString
+							(PASSWORD_COLUMN), teams.getBoolean
+							(ADMIN_COLUMN)));
+				}
+			} while (teams.next());
+
+			return members;
+
+		} catch (UnknownTeamNameException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
 	}
 }

@@ -8,7 +8,6 @@ import tvestergaard.databaseassignment.database.users.User;
 import java.util.List;
 
 import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -21,15 +20,6 @@ public class MysqlTeamDAOTest
 	public void setUp()
 	{
 		this.dao = new MysqlTeamDAO(new DefaultMysqlDataSource());
-	}
-
-	@Test
-	public void testGetTeamMembersInValidTeamID() throws Exception
-	{
-		// Negative test
-		List<User> teamMembers = dao.getTeamMembers(99);
-		assertNotNull(teamMembers);
-		assertTrue(teamMembers.isEmpty());
 	}
 
 	@Test
@@ -54,7 +44,7 @@ public class MysqlTeamDAOTest
 	}
 
 	@Test(expected = UnknownTeamIdException.class)
-	public void testGetTeamByInvalidID() throws Exception
+	public void testGetTeamThrowsUnknownTeamIdException() throws Exception
 	{
 		// Negative test
 		dao.getTeam(99);
@@ -71,9 +61,41 @@ public class MysqlTeamDAOTest
 	}
 
 	@Test(expected = UnknownTeamNameException.class)
-	public void testGetTeamByInvalidTeamName() throws Exception
+	public void testGetTeamThrowsUnknownTeamNameException() throws Exception
 	{
 		// negative test
 		dao.getTeam("Not a team name!");
+	}
+
+	@Test
+	public void testGetTeamMembersByID() throws Exception
+	{
+		// positive test
+		List<User> teamMembers = dao.getTeamMembers(1);
+		assertNotNull(teamMembers);
+		assertEquals(3, teamMembers.size());
+	}
+
+	@Test(expected = UnknownTeamIdException.class)
+	public void testGetTeamMembersByIDThrowsUnknownTeamIdException() throws Exception
+	{
+		// negative test
+		dao.getTeamMembers(99);
+	}
+
+	@Test
+	public void testGetTeamMembersByTeamName() throws Exception
+	{
+		// positive test
+		List<User> teamMembers = dao.getTeamMembers("A");
+		assertNotNull(teamMembers);
+		assertEquals(3, teamMembers.size());
+	}
+
+	@Test(expected = UnknownTeamNameException.class)
+	public void testGetTeamMembersByTeamNameThrowsUnknownTeamNameException() throws Exception
+	{
+		// negative test
+		dao.getTeamMembers("UNKNOWN TEAM NAME!");
 	}
 }
