@@ -17,8 +17,12 @@ import java.util.List;
 public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 {
 
-	private static final String ID_COLUMN   = "team_id";
-	private static final String NAME_COLUMN = "team_name";
+	private static final String TEAM_ID_COLUMN   = "team_id";
+	private static final String TEAM_NAME_COLUMN = "team_name";
+	private static final String USER_ID_COLUMN   = "user_id";
+	private static final String USERNAME_COLUMN  = "username";
+	private static final String PASSWORD_COLUMN  = "password";
+	private static final String ADMIN_COLUMN     = "admin";
 
 	/**
 	 * Creates a new {@link MysqlTeamDAO}.
@@ -37,14 +41,46 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 	 */
 	@Override public List<Team> getTeams()
 	{
+		String sql = "SELECT * FROM teams LEFT JOIN team_members ON teams" +
+					 ".team_id = team_members.team_id LEFT JOIN users ON users.user_id = team_members.user_id ORDER BY teams.team_id;";
+
 		try {
 			Connection        connection     = newConnection();
-			PreparedStatement teamsStatement = connection.prepareStatement("SELECT * FROM teams");
+			PreparedStatement teamsStatement = connection.prepareStatement(sql);
 			ResultSet         teams          = teamsStatement.executeQuery();
 			ArrayList<Team>   result         = new ArrayList<>();
 
+			int  currentTeamId = -1;
+			Team currentTeam   = null;
+
+			while (teams.next()) {
+				int teamId = teams.getInt(TEAM_ID_COLUMN);
+				if (currentTeamId != teamId) {
+					currentTeamId = teamId;
+					currentTeam = new Team(teamId, teams.getString(TEAM_NAME_COLUMN));
+					result.add(currentTeam);
+					int userId = teams.getInt(USER_ID_COLUMN);
+					if (!teams.wasNull()) {
+						User user = new User(userId, teams.getString
+								(USERNAME_COLUMN), teams.getString
+								(PASSWORD_COLUMN), teams.getBoolean
+								(ADMIN_COLUMN));
+						currentTeam.addMember(user);
+					}
+				} else {
+					int userId = teams.getInt(USER_ID_COLUMN);
+					if (!teams.wasNull()) {
+						User user = new User(userId, teams.getString
+								(USERNAME_COLUMN), teams.getString
+								(PASSWORD_COLUMN), teams.getBoolean
+								(ADMIN_COLUMN));
+						currentTeam.addMember(user);
+					}
+				}
+			}
+
 			if (teams.next()) {
-				Team team = new Team(teams.getInt(ID_COLUMN), teams.getString(NAME_COLUMN));
+				Team team = new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
 				result.add(team);
 			}
 
@@ -73,7 +109,7 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 			ResultSet teams = statement.executeQuery();
 			if (!teams.first())
 				throw new UnknownTeamIdException();
-			return new Team(teams.getInt(ID_COLUMN), teams.getString(NAME_COLUMN));
+			return new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
 		} catch (UnknownTeamIdException e) {
 			throw e;
 		} catch (Exception e) {
@@ -100,7 +136,7 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 			if (!teams.first())
 				throw new UnknownTeamNameException();
 
-			return new Team(teams.getInt(ID_COLUMN), teams.getString(NAME_COLUMN));
+			return new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
 		} catch (UnknownTeamNameException e) {
 			throw e;
 		} catch (Exception e) {

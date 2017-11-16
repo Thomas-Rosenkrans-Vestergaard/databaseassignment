@@ -7,7 +7,8 @@ import tvestergaard.databaseassignment.database.users.User;
 
 import java.util.List;
 
-import static junit.framework.TestCase.*;
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -52,12 +53,11 @@ public class MysqlTeamDAOTest
 		assertEquals(team.getMembers().size(), 3);
 	}
 
-	@Test
+	@Test(expected = UnknownTeamIdException.class)
 	public void testGetTeamByInvalidID() throws Exception
 	{
 		// Negative test
-		Team team = dao.getTeam(99);
-		assertNull(team);
+		dao.getTeam(99);
 	}
 
 	@Test
@@ -70,12 +70,10 @@ public class MysqlTeamDAOTest
 		assertEquals(team.getMembers().size(), 3);
 	}
 
-	@Test
+	@Test(expected = UnknownTeamNameException.class)
 	public void testGetTeamByInvalidTeamName() throws Exception
 	{
 		// negative test
-		Team team = dao.getTeam("Not a team name!");
-		assertNull(team);
+		dao.getTeam("Not a team name!");
 	}
-
 }
