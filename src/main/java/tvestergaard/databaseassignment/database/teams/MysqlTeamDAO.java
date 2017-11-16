@@ -323,50 +323,52 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 
         try {
 
-            teamCheckStatement = connection.prepareStatement(teamCheckSQL);
-            teamCheckStatement.setString(1, teamBuilder.getName());
-            ResultSet teamCheckResult = teamCheckStatement.executeQuery();
-            teamCheckResult.next();
-
-            if (teamCheckResult.getInt(1) > 0)
-                throw new TeamNameTakenException(teamBuilder.getName());
-
-            teamStatement = connection.prepareStatement(teamSQL, Statement.RETURN_GENERATED_KEYS);
-            memberStatement = connection.prepareStatement(memberSQL);
-            teamStatement.setString(1, teamBuilder.getName());
-            teamStatement.executeUpdate();
-            ResultSet insertedIndex = teamStatement.getGeneratedKeys();
-            insertedIndex.next();
-            int teamId = insertedIndex.getInt(1);
-
-            for (UserReference member : teamBuilder.getMembers()) {
-                memberStatement.setInt(1, teamId);
-                memberStatement.setInt(2, member.getId());
-                memberStatement.executeUpdate();
-            }
-
-            connection.commit();
-
-            return getTeam(teamId);
-
-        } catch (UnknownTeamIdException e) {
-            throw new IllegalStateException(e);
-        } catch (SQLException e) {
             try {
+
+                teamCheckStatement = connection.prepareStatement(teamCheckSQL);
+                teamCheckStatement.setString(1, teamBuilder.getName());
+                ResultSet teamCheckResult = teamCheckStatement.executeQuery();
+                teamCheckResult.next();
+
+                if (teamCheckResult.getInt(1) > 0)
+                    throw new TeamNameTakenException(teamBuilder.getName());
+
+                teamStatement = connection.prepareStatement(teamSQL, Statement.RETURN_GENERATED_KEYS);
+                memberStatement = connection.prepareStatement(memberSQL);
+                teamStatement.setString(1, teamBuilder.getName());
+                teamStatement.executeUpdate();
+                ResultSet insertedIndex = teamStatement.getGeneratedKeys();
+                insertedIndex.next();
+                int teamId = insertedIndex.getInt(1);
+
+                for (UserReference member : teamBuilder.getMembers()) {
+                    memberStatement.setInt(1, teamId);
+                    memberStatement.setInt(2, member.getId());
+                    memberStatement.executeUpdate();
+                }
+
+                connection.commit();
+
+                return getTeam(teamId);
+
+            } catch (TeamNameTakenException e) {
+                throw e;
+            } catch (SQLException e) {
                 connection.rollback();
-            } catch (Exception ee) {
-
+                throw e;
             } finally {
-                throw new IllegalStateException(e);
+                if (teamCheckStatement != null)
+                    teamCheckStatement.close();
+                if (teamStatement != null)
+                    teamStatement.close();
+                if (memberStatement != null)
+                    memberStatement.close();
             }
-        } finally {
-            try {
-                teamCheckStatement.close();
-                teamStatement.close();
-                memberStatement.close();
-            } catch (Exception e) {
 
-            }
+        } catch (TeamNameTakenException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -389,45 +391,49 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 
         try {
 
-            teamCheckIDStatement = connection.prepareStatement(teamCheckIDSQL);
-            teamCheckIDStatement.setInt(1, team.getId());
-            ResultSet teamCheckIDResult = teamCheckIDStatement.executeQuery();
-            teamCheckIDResult.next();
-
-            if (teamCheckIDResult.getInt(1) < 1)
-                throw new UnknownTeamException(team);
-
-            teamCheckNameStatement = connection.prepareStatement(teamCheckNameSQL);
-            teamCheckNameStatement.setString(1, team.getName());
-            ResultSet teamCheckNameResult = teamCheckNameStatement.executeQuery();
-            teamCheckNameResult.next();
-
-            if (teamCheckNameResult.getInt(1) > 0)
-                throw new TeamNameTakenException(team.getName());
-
-            teamStatement = connection.prepareStatement(teamSQL);
-            teamStatement.setString(1, team.getName());
-            teamStatement.setInt(2, team.getId());
-            teamStatement.executeUpdate();
-
-            connection.commit();
-
-        } catch (SQLException e) {
             try {
+
+                teamCheckIDStatement = connection.prepareStatement(teamCheckIDSQL);
+                teamCheckIDStatement.setInt(1, team.getId());
+                ResultSet teamCheckIDResult = teamCheckIDStatement.executeQuery();
+                teamCheckIDResult.next();
+
+                if (teamCheckIDResult.getInt(1) < 1)
+                    throw new UnknownTeamException(team);
+
+                teamCheckNameStatement = connection.prepareStatement(teamCheckNameSQL);
+                teamCheckNameStatement.setString(1, team.getName());
+                ResultSet teamCheckNameResult = teamCheckNameStatement.executeQuery();
+                teamCheckNameResult.next();
+
+                if (teamCheckNameResult.getInt(1) > 0)
+                    throw new TeamNameTakenException(team.getName());
+
+                teamStatement = connection.prepareStatement(teamSQL);
+                teamStatement.setString(1, team.getName());
+                teamStatement.setInt(2, team.getId());
+                teamStatement.executeUpdate();
+
+                connection.commit();
+
+            } catch (TeamNameTakenException | UnknownTeamException e) {
+                throw e;
+            } catch (SQLException e) {
                 connection.rollback();
-            } catch (Exception ee) {
-
+                throw e;
             } finally {
-                throw new IllegalStateException(e);
+                if (teamCheckIDStatement != null)
+                    teamCheckIDStatement.close();
+                if (teamCheckNameStatement != null)
+                    teamCheckNameStatement.close();
+                if (teamStatement != null)
+                    teamStatement.close();
             }
-        } finally {
-            try {
-                teamCheckIDStatement.close();
-                teamCheckNameStatement.close();
-                teamStatement.close();
-            } catch (Exception e) {
 
-            }
+        } catch (TeamNameTakenException | UnknownTeamException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -449,41 +455,45 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
         PreparedStatement deleteTeamStatement = null;
 
         try {
-            selectMembersStatement = connection.prepareStatement(selectMembersSQL);
-            selectMembersStatement.setInt(1, team.getId());
-            ResultSet members = selectMembersStatement.executeQuery();
 
-            deleteMembersStatement = connection.prepareStatement(deleteMembersSQL);
-            while (members.next()) {
-                deleteMembersStatement.setInt(1, team.getId());
-                deleteMembersStatement.setInt(2, members.getInt(USER_ID_COLUMN));
-            }
-
-            deleteTeamStatement = connection.prepareStatement(deleteTeamSQL);
-            deleteTeamStatement.setInt(1, team.getId());
-            int updated = deleteTeamStatement.executeUpdate();
-
-            connection.commit();
-
-            if (updated == 0)
-                throw new UnknownTeamReferenceException(team);
-
-        } catch (SQLException e) {
             try {
+                selectMembersStatement = connection.prepareStatement(selectMembersSQL);
+                selectMembersStatement.setInt(1, team.getId());
+                ResultSet members = selectMembersStatement.executeQuery();
+
+                deleteMembersStatement = connection.prepareStatement(deleteMembersSQL);
+                while (members.next()) {
+                    deleteMembersStatement.setInt(1, team.getId());
+                    deleteMembersStatement.setInt(2, members.getInt(USER_ID_COLUMN));
+                }
+
+                deleteTeamStatement = connection.prepareStatement(deleteTeamSQL);
+                deleteTeamStatement.setInt(1, team.getId());
+                int updated = deleteTeamStatement.executeUpdate();
+
+                connection.commit();
+
+                if (updated == 0)
+                    throw new UnknownTeamReferenceException(team);
+
+            } catch (UnknownTeamReferenceException e) {
+                throw e;
+            } catch (SQLException e) {
                 connection.rollback();
-            } catch (Exception ee) {
-
+                throw e;
             } finally {
-                throw new IllegalStateException(e);
+                if (selectMembersStatement != null)
+                    selectMembersStatement.close();
+                if (deleteMembersStatement != null)
+                    deleteMembersStatement.close();
+                if (deleteTeamStatement != null)
+                    deleteTeamStatement.close();
             }
-        } finally {
-            try {
-                selectMembersStatement.close();
-                deleteMembersStatement.close();
-                deleteTeamStatement.close();
-            } catch (Exception e) {
 
-            }
+        } catch (UnknownTeamReferenceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 }
