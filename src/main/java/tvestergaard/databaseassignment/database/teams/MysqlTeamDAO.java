@@ -1,7 +1,7 @@
 package tvestergaard.databaseassignment.database.teams;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import tvestergaard.databaseassignment.AbstractMysqlDAO;
+import tvestergaard.databaseassignment.database.AbstractMysqlDAO;
 import tvestergaard.databaseassignment.database.users.User;
 
 import javax.sql.DataSource;

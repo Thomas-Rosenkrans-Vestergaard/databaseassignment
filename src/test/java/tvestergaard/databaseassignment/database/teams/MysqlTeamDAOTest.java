@@ -2,7 +2,7 @@ package tvestergaard.databaseassignment.database.teams;
 
 import org.junit.Before;
 import org.junit.Test;
-import tvestergaard.databaseassignment.DefaultMysqlDataSource;
+import tvestergaard.databaseassignment.database.DefaultMysqlDataSource;
 import tvestergaard.databaseassignment.database.users.User;
 
 import java.util.List;

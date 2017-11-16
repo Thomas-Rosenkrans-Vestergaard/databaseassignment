@@ -1,7 +1,7 @@
 package tvestergaard.databaseassignment.database.users;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import tvestergaard.databaseassignment.AbstractMysqlDAO;
+import tvestergaard.databaseassignment.database.AbstractMysqlDAO;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -72,7 +72,7 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
 			statement.setInt(1, id);
 			ResultSet teams = statement.executeQuery();
 			if (!teams.first())
-				throw new UnknownUserIdException();
+				throw new UnknownUserIdException(id);
 
 			return new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
 					(PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN));
@@ -100,7 +100,7 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
 			statement.setString(1, username);
 			ResultSet teams = statement.executeQuery();
 			if (!teams.first())
-				throw new UnknownUsernameException();
+				throw new UnknownUsernameException(username);
 			return new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
 					(PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN));
 		} catch (UnknownUsernameException e) {
