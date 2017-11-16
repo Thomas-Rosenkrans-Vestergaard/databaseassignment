@@ -1,12 +1,7 @@
 package tvestergaard.databaseassignment.database.users;
 
-public class User
+public class User extends UserReference
 {
-
-    /**
-     * The id of the {@link User}.
-     */
-    private final int id;
 
     /**
      * The username of the {@link User}.
@@ -26,27 +21,17 @@ public class User
     /**
      * Creates a new {@link User}.
      *
-     * @param id  The id of the {@link User}.
+     * @param id       The id of the {@link User}.
      * @param username The username of the {@link User}.
      * @param password The password of the {@link User}.
-     * @param admin Whether or not the {@link User} is an administrator.
+     * @param admin    Whether or not the {@link User} is an administrator.
      */
     public User(int id, String username, String password, boolean admin)
     {
-        this.id = id;
+        super(id);
         this.username = username;
         this.password = password;
         this.admin = admin;
-    }
-
-    /**
-     * Returns the {@link User} id.
-     *
-     * @return The {@link User} id.
-     */
-    public int getId()
-    {
-        return this.id;
     }
 
     /**
@@ -113,7 +98,7 @@ public class User
     public String toString()
     {
         return "User{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 ", admin=" + admin +
@@ -129,7 +114,7 @@ public class User
 
         User user = (User) o;
 
-        if (id != user.id) return false;
+        if (getId() != user.getId()) return false;
         if (admin != user.admin) return false;
         if (!username.equals(user.username)) return false;
         return password.equals(user.password);
@@ -138,7 +123,7 @@ public class User
     @Override
     public int hashCode()
     {
-        int result = id;
+        int result = getId();
         result = 31 * result + username.hashCode();
         result = 31 * result + password.hashCode();
         result = 31 * result + (admin ? 1 : 0);

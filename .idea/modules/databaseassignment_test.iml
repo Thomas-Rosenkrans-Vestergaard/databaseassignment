@@ -12,8 +12,21 @@
     <orderEntry type="module" module-name="databaseassignment_main" />
     <orderEntry type="library" name="Gradle: mysql:mysql-connector-java:8.0.8-dmr" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:19.0" level="project" />
+    <orderEntry type="library" name="Gradle: ch.vorburger.mariaDB4j:mariaDB4j:2.2.3" level="project" />
     <orderEntry type="library" name="Gradle: junit:junit:4.12" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-simple:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: ch.vorburger.mariaDB4j:mariaDB4j-core:2.2.3" level="project" />
+    <orderEntry type="library" name="Gradle: ch.vorburger.mariaDB4j:mariaDB4j-db-linux64:10.1.13" level="project" />
+    <orderEntry type="library" name="Gradle: ch.vorburger.mariaDB4j:mariaDB4j-db-win32:10.1.20" level="project" />
+    <orderEntry type="library" name="Gradle: ch.vorburger.mariaDB4j:mariaDB4j-db-mac64:10.1.9" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-collections4:4.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-exec:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.4" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework:spring-core:4.3.6.RELEASE" level="project" />
+    <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="databaseassignment_main" />
 </module>

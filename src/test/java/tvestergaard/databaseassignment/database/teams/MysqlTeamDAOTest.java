@@ -2,100 +2,181 @@ package tvestergaard.databaseassignment.database.teams;
 
 import org.junit.Before;
 import org.junit.Test;
-import tvestergaard.databaseassignment.database.DefaultMysqlDataSource;
+import tvestergaard.databaseassignment.database.MysqlMemoryDatabase;
 import tvestergaard.databaseassignment.database.users.User;
+import tvestergaard.databaseassignment.database.users.UserReference;
 
 import java.util.List;
 
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class MysqlTeamDAOTest
 {
 
-	private MysqlTeamDAO dao;
+    private MysqlTeamDAO dao;
 
-	@Before
-	public void setUp()
-	{
-		this.dao = new MysqlTeamDAO(new DefaultMysqlDataSource());
-	}
+    @Before
+    public void setUp() throws Exception
+    {
+        if (dao == null)
+            dao = new MysqlTeamDAO(MysqlMemoryDatabase.getDataSource());
 
-	@Test
-	public void testGetAllTeams() throws Exception
-	{
-		List<Team> teams = dao.getTeams();
-		assertNotNull(teams);
-		assertFalse(teams.isEmpty());
-		Team team = teams.get(0);
-		assertEquals(team.getName(), "A");
-		assertEquals(team.getMembers().size(), 3);
-	}
+        MysqlMemoryDatabase.reset();
+    }
 
-	@Test
-	public void testGetTeamByID() throws Exception
-	{
-		// positive test
-		Team team = dao.getTeam(1);
-		assertNotNull(team);
-		assertEquals(team.getName(), "A");
-		assertEquals(team.getMembers().size(), 3);
-	}
+    @Test
+    public void testGetAllTeams() throws Exception
+    {
+        List<Team> teams = dao.getTeams();
+        assertNotNull(teams);
+        assertFalse(teams.isEmpty());
+        Team team = teams.get(0);
+        assertEquals(team.getName(), "A");
+        assertEquals(team.getMembers().size(), 3);
+    }
 
-	@Test(expected = UnknownTeamIdException.class)
-	public void testGetTeamThrowsUnknownTeamIdException() throws Exception
-	{
-		// Negative test
-		dao.getTeam(99);
-	}
+    @Test
+    public void testGetTeamByID() throws Exception
+    {
+        // positive test
+        Team team = dao.getTeam(1);
+        assertNotNull(team);
+        assertEquals(team.getName(), "A");
+        assertEquals(team.getMembers().size(), 3);
+    }
 
-	@Test
-	public void testGetTeamByTeamName() throws Exception
-	{
-		// positive test
-		Team team = dao.getTeam("A");
-		assertNotNull(team);
-		assertEquals(team.getId(), 1);
-		assertEquals(team.getMembers().size(), 3);
-	}
+    @Test(expected = UnknownTeamIdException.class)
+    public void testGetTeamThrowsUnknownTeamIdException() throws Exception
+    {
+        // Negative test
+        dao.getTeam(99);
+    }
 
-	@Test(expected = UnknownTeamNameException.class)
-	public void testGetTeamThrowsUnknownTeamNameException() throws Exception
-	{
-		// negative test
-		dao.getTeam("Not a team name!");
-	}
+    @Test
+    public void testGetTeamByTeamName() throws Exception
+    {
+        // positive test
+        Team team = dao.getTeam("A");
+        assertNotNull(team);
+        assertEquals(team.getId(), 1);
+        assertEquals(team.getMembers().size(), 3);
+    }
 
-	@Test
-	public void testGetTeamMembersByID() throws Exception
-	{
-		// positive test
-		List<User> teamMembers = dao.getTeamMembers(1);
-		assertNotNull(teamMembers);
-		assertEquals(3, teamMembers.size());
-	}
+    @Test(expected = UnknownTeamNameException.class)
+    public void testGetTeamThrowsUnknownTeamNameException() throws Exception
+    {
+        // negative test
+        dao.getTeam("Not a team name!");
+    }
 
-	@Test(expected = UnknownTeamIdException.class)
-	public void testGetTeamMembersByIDThrowsUnknownTeamIdException() throws Exception
-	{
-		// negative test
-		dao.getTeamMembers(99);
-	}
+    @Test
+    public void testGetTeamMembersByID() throws Exception
+    {
+        // positive test
+        List<User> teamMembers = dao.getTeamMembers(1);
+        assertNotNull(teamMembers);
+        assertEquals(3, teamMembers.size());
+    }
 
-	@Test
-	public void testGetTeamMembersByTeamName() throws Exception
-	{
-		// positive test
-		List<User> teamMembers = dao.getTeamMembers("A");
-		assertNotNull(teamMembers);
-		assertEquals(3, teamMembers.size());
-	}
+    @Test(expected = UnknownTeamIdException.class)
+    public void testGetTeamMembersByIDThrowsUnknownTeamIdException() throws Exception
+    {
+        // negative test
+        dao.getTeamMembers(99);
+    }
 
-	@Test(expected = UnknownTeamNameException.class)
-	public void testGetTeamMembersByTeamNameThrowsUnknownTeamNameException() throws Exception
-	{
-		// negative test
-		dao.getTeamMembers("UNKNOWN TEAM NAME!");
-	}
+    @Test
+    public void testGetTeamMembersByTeamName() throws Exception
+    {
+        // positive test
+        List<User> teamMembers = dao.getTeamMembers("A");
+        assertNotNull(teamMembers);
+        assertEquals(3, teamMembers.size());
+    }
+
+    @Test(expected = UnknownTeamNameException.class)
+    public void testGetTeamMembersByTeamNameThrowsUnknownTeamNameException() throws Exception
+    {
+        // negative test
+        dao.getTeamMembers("UNKNOWN TEAM NAME!");
+    }
+
+    @Test
+    public void insertTeam() throws Exception
+    {
+        TeamBuilder builder = new TeamBuilder();
+        String expectedName = "AA";
+        builder.setName(expectedName);
+        builder.addMember(UserReference.of(1));
+        builder.addMember(UserReference.of(2));
+        Team result = dao.insertTeam(builder);
+        assertEquals(expectedName, result.getName());
+        assertTrue(result.hasMember(1));
+        assertTrue(result.hasMember(2));
+        assertFalse(result.hasMember(3));
+    }
+
+    @Test(expected = TeamNameTakenException.class)
+    public void insertTeamThrowsTeamNameTakenException() throws Exception
+    {
+        TeamBuilder builder = new TeamBuilder();
+        String expectedName = "A";
+        builder.setName(expectedName);
+        builder.addMember(UserReference.of(1));
+        builder.addMember(UserReference.of(2));
+        Team result = dao.insertTeam(builder);
+        assertEquals(expectedName, result.getName());
+        assertTrue(result.hasMember(1));
+        assertTrue(result.hasMember(2));
+        assertFalse(result.hasMember(3));
+    }
+
+    @Test
+    public void updateTeam() throws Exception
+    {
+        Team before = dao.getTeam(1);
+        assertEquals("A", before.getName());
+        assertEquals(3, before.getMembers().size());
+        before.setName("D");
+        dao.updateTeam(before);
+        Team after = dao.getTeam(1);
+        assertEquals(before, after);
+    }
+
+    @Test(expected = UnknownTeamException.class)
+    public void updateTeamThrowsUnknownTeamException() throws Exception
+    {
+        Team team = new Team(99, "D");
+        dao.updateTeam(team);
+    }
+
+    @Test(expected = TeamNameTakenException.class)
+    public void updateTeamThrowsTeamNameTakenException() throws Exception
+    {
+        Team before = dao.getTeam(1);
+        assertEquals("A", before.getName());
+        assertEquals(3, before.getMembers().size());
+        before.setName("B");
+        dao.updateTeam(before);
+    }
+
+    @Test
+    public void deleteTeam() throws Exception
+    {
+        try {
+            Team team = dao.getTeam(1);
+            dao.deleteTeam(team);
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test(expected = UnknownTeamReferenceException.class)
+    public void deleteTeamThrowsUnknownTeamReferenceException() throws Exception
+    {
+        TeamReference teamReference = TeamReference.of(100);
+        dao.deleteTeam(teamReference);
+    }
 }

@@ -2,7 +2,7 @@ package tvestergaard.databaseassignment.database.users;
 
 import org.junit.Before;
 import org.junit.Test;
-import tvestergaard.databaseassignment.database.DefaultMysqlDataSource;
+import tvestergaard.databaseassignment.database.MysqlMemoryDatabase;
 
 import java.util.List;
 
@@ -15,9 +15,12 @@ public class MysqlUserDAOTest
     private MysqlUserDAO dao;
 
     @Before
-    public void setUp()
+    public void setUp() throws Exception
     {
-        this.dao = new MysqlUserDAO(new DefaultMysqlDataSource());
+        if (dao == null)
+            dao = new MysqlUserDAO(MysqlMemoryDatabase.getDataSource());
+
+        MysqlMemoryDatabase.reset();
     }
 
     @Test

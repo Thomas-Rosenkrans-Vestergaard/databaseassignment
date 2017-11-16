@@ -3,37 +3,45 @@ package tvestergaard.databaseassignment.database;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * An abstract base class for data access objects using a {@link MysqlDataSource}.
  */
-public abstract class AbstractMysqlDAO
+public abstract class AbstractMysqlDAO implements DAO
 {
 
-	/**
-	 * The {@link MysqlDataSource} used to retrieve data.
-	 */
-	private MysqlDataSource dataSource;
+    /**
+     * The {@link MysqlDataSource} used to retrieve data.
+     */
+    protected final Connection connection;
 
-	/**
-	 * Creates a new {@link AbstractMysqlDAO}.
-	 *
-	 * @param dataSource The {@link MysqlDataSource} used to retrieve data.
-	 */
-	public AbstractMysqlDAO(MysqlDataSource dataSource)
-	{
-		this.dataSource = dataSource;
-	}
+    /**
+     * Creates a new {@link AbstractMysqlDAO}.
+     *
+     * @param dataSource The {@link MysqlDataSource} used to retrieve data.
+     * @throws OpenDAOException When a {@link Connection} couldn't be created using the provided {@link MysqlDataSource}.
+     */
+    public AbstractMysqlDAO(MysqlDataSource dataSource) throws OpenDAOException
+    {
+        try {
+            this.connection = dataSource.getConnection();
+            this.connection.setAutoCommit(false);
+        } catch (Exception e) {
+            throw new OpenDAOException(e);
+        }
+    }
 
-	/**
-	 * Returns a new {@link Connection} that can be used to query the {@link MysqlDataSource}.
-	 *
-	 * @return The new {@link Connection} used to query the {@link MysqlDataSource}.
-	 * @throws SQLException When an exception occurs while creating the new {@link Connection}.
-	 */
-	protected Connection newConnection() throws SQLException
-	{
-		return dataSource.getConnection();
-	}
+    /**
+     * Closes the resource used by the {@link DAO}.
+     *
+     * @throws CloseDAOException When the {@link DAO} cannot be closed.
+     */
+    @Override public void close() throws CloseDAOException
+    {
+        try {
+            connection.close();
+        } catch (Exception e) {
+            throw new CloseDAOException(e);
+        }
+    }
 }

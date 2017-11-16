@@ -7,14 +7,10 @@ import tvestergaard.databaseassignment.database.users.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-public class Team
+public class Team extends TeamReference
 {
-
-    /**
-     * The id of the {@link Team}.
-     */
-    private final int id;
 
     /**
      * The name of the {@link Team}.
@@ -34,18 +30,8 @@ public class Team
      */
     public Team(int id, String name)
     {
-        this.id = id;
+        super(id);
         this.name = name;
-    }
-
-    /**
-     * Returns the id of the {@link Team}.
-     *
-     * @return The id of the {@link Team}.
-     */
-    public int getId()
-    {
-        return this.id;
     }
 
     /**
@@ -86,6 +72,38 @@ public class Team
     public ImmutableList<User> getMembers()
     {
         return ImmutableList.copyOf(members);
+    }
+
+    /**
+     * Returns the member with the provided username.
+     *
+     * @param username The username of the member to return.
+     * @return The member with the provided username.
+     * @throws UnknownUsernameException When a member with the provided username doesn't exist.
+     */
+    public User getMember(String username) throws UnknownUsernameException
+    {
+        for (User user : members)
+            if (user.getUsername().equals(username))
+                return user;
+
+        throw new UnknownUsernameException(username);
+    }
+
+    /**
+     * Returns the member with the provided id.
+     *
+     * @param id The id of the member to return.
+     * @return The member with the provided id.
+     * @throws UnknownUsernameException When a member with the provided id doesn't exist.
+     */
+    public User getMember(int id) throws UnknownUserIdException
+    {
+        for (User user : members)
+            if (user.getId() == id)
+                return user;
+
+        throw new UnknownUserIdException(id);
     }
 
     /**
@@ -134,44 +152,26 @@ public class Team
         return false;
     }
 
-    /**
-     * Returns the member with the provided username.
-     *
-     * @param username The username of the member to return.
-     * @return The member with the provided username.
-     * @throws UnknownUsernameException When a member with the provided username doesn't exist.
-     */
-    public User getMember(String username) throws UnknownUsernameException
-    {
-        for (User user : members)
-            if (user.equals(username))
-                return user;
-
-        throw new UnknownUsernameException(username);
-    }
-
-    /**
-     * Returns the member with the provided id.
-     *
-     * @param id The id of the member to return.
-     * @return The member with the provided id.
-     * @throws UnknownUsernameException When a member with the provided id doesn't exist.
-     */
-    public User getMember(int id) throws UnknownUserIdException
-    {
-        for (User user : members)
-            if (user.equals(id))
-                return user;
-
-        throw new UnknownUserIdException(id);
-    }
-
-    @Override
-    public String toString()
+    @Override public String toString()
     {
         return "Team{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", name='" + name + '\'' +
                 '}';
+    }
+
+    @Override public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof Team)) return false;
+        Team team = (Team) o;
+        return Objects.equals(getName(), team.getName()) &&
+                Objects.equals(getMembers(), team.getMembers()) &&
+                Objects.equals(getId(), team.getId());
+    }
+
+    @Override public int hashCode()
+    {
+        return Objects.hash(getId(), getName(), getMembers());
     }
 }

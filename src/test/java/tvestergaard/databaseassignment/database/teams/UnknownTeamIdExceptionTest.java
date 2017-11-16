@@ -6,11 +6,12 @@ import static org.junit.Assert.assertSame;
 
 public class UnknownTeamIdExceptionTest
 {
-	@Test
-	public void getUnknownId() throws Exception
-	{
-		int                    expected  = 5;
-		UnknownTeamIdException exception = new UnknownTeamIdException(expected);
-		assertSame(expected, exception.getUnknownId());
-	}
+
+    @Test
+    public void getUnknownId() throws Exception
+    {
+        int expected = 5;
+        UnknownTeamIdException exception = new UnknownTeamIdException(expected);
+        assertSame(expected, exception.getUnknownId());
+    }
 }

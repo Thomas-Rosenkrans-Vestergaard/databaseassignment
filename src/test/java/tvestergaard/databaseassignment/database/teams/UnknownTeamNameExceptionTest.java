@@ -7,11 +7,12 @@ import static org.junit.Assert.assertSame;
 
 public class UnknownTeamNameExceptionTest
 {
-	@Test
-	public void getUnknownTeamName() throws Exception
-	{
-		String                   expected  = "TeamName";
-		UnknownUsernameException exception = new UnknownUsernameException(expected);
-		assertSame(expected, exception.getUnknownUsername());
-	}
+
+    @Test
+    public void getUnknownTeamName() throws Exception
+    {
+        String expected = "TeamName";
+        UnknownUsernameException exception = new UnknownUsernameException(expected);
+        assertSame(expected, exception.getUnknownUsername());
+    }
 }
