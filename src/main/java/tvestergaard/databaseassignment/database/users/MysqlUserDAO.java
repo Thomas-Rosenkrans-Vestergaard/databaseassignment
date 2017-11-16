@@ -1,6 +1,7 @@
-package tvestergaard.databaseassignment;
+package tvestergaard.databaseassignment.database.users;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
+import tvestergaard.databaseassignment.AbstractMysqlDAO;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -58,23 +59,25 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
 	 * Returns the user with the provided id in the {@link DataSource}.
 	 *
 	 * @param id The id of the user to retrieve.
-	 *
 	 * @return The user with the provided id in the {@link DataSource}. Returns <code>null</code> in case
 	 * no user with the provided constrain exists.
+	 * @throws UnknownUserIdException When a user with the provided id
+	 *                                doesn't exist.
 	 */
-	@Override public User getUser(int id)
+	@Override public User getUser(int id) throws UnknownUserIdException
 	{
 		try {
 			Connection        connection = newConnection();
 			PreparedStatement statement  = connection.prepareStatement("SELECT * FROM users WHERE user_id = ?");
 			statement.setInt(1, id);
 			ResultSet teams = statement.executeQuery();
-			if (teams.first())
-				return new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
-						(PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN));
+			if (!teams.first())
+				throw new UnknownUserIdException();
 
-			return null;
-
+			return new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
+					(PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN));
+		} catch (UnknownUserIdException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}
@@ -84,23 +87,23 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
 	 * Returns the user with the provided username in the {@link DataSource}.
 	 *
 	 * @param username The username of the user to retrieve.
-	 *
 	 * @return The user with the provided username in the {@link DataSource}. Returns <code>null</code> in
 	 * case no user with the provided constrain exists.
+	 * @throws UnknownUsernameException When a user with the
 	 */
-	@Override public User getUser(String username)
+	@Override public User getUser(String username) throws UnknownUsernameException
 	{
 		try {
 			Connection        connection = newConnection();
 			PreparedStatement statement  = connection.prepareStatement("SELECT * FROM users WHERE username = ?");
 			statement.setString(1, username);
 			ResultSet teams = statement.executeQuery();
-			if (teams.first())
-				return new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
-						(PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN));
-
-			return null;
-
+			if (!teams.first())
+				throw new UnknownUsernameException();
+			return new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
+					(PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN));
+		} catch (UnknownUsernameException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}

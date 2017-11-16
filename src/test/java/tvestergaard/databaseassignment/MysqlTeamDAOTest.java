@@ -1,36 +1,19 @@
 package tvestergaard.databaseassignment;
 
+import org.junit.Before;
 import org.junit.Test;
+import tvestergaard.databaseassignment.database.teams.MysqlTeamDAO;
+import tvestergaard.databaseassignment.database.teams.Team;
+import tvestergaard.databaseassignment.database.users.User;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static junit.framework.TestCase.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class MysqlTeamDAOTest
 {
-	@Test
-	public void getTeams() throws Exception
-	{
-		MysqlTeamDAO dao   = new MysqlTeamDAO(new DefaultMysqlDataSource());
-		List<Team>   teams = dao.getTeams();
-		for (Team team : teams) {
-			System.out.println(team);
-			for (User user : team.getMembers())
-				System.out.println("\t" + user.toString());
-		}
-	}
 
-	@Test
-	public void getTeam() throws Exception
-	{
-		MysqlTeamDAO dao  = new MysqlTeamDAO(new DefaultMysqlDataSource());
-		Team         team = dao.getTeam(1);
-		System.out.println(team);
-	}
-
-	@Test
-	public void getTeam1() throws Exception
-	{
-		MysqlTeamDAO dao  = new MysqlTeamDAO(new DefaultMysqlDataSource());
-		Team         team = dao.getTeam("B");
-		System.out.println(team);
-	}
 }

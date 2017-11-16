@@ -1,4 +1,4 @@
-package tvestergaard.databaseassignment;
+package tvestergaard.databaseassignment.database.users;
 
 import java.util.List;
 
@@ -16,19 +16,20 @@ public interface UserDAO
 	 * Returns the user with the provided id in the {@link javax.sql.DataSource}.
 	 *
 	 * @param id The id of the user to retrieve.
-	 *
 	 * @return The user with the provided id in the {@link javax.sql.DataSource}. Returns <code>null</code> in case
 	 * no user with the provided constrain exists.
+	 * @throws UnknownUserIdException When a user with the provided id
+	 *                                doesn't exist.
 	 */
-	User getUser(int id);
+	User getUser(int id) throws UnknownUserIdException;
 
 	/**
 	 * Returns the user with the provided username in the {@link javax.sql.DataSource}.
 	 *
 	 * @param username The username of the user to retrieve.
-	 *
 	 * @return The user with the provided username in the {@link javax.sql.DataSource}. Returns <code>null</code> in
 	 * case no user with the provided constrain exists.
+	 * @throws UnknownUsernameException When a user with the
 	 */
-	User getUser(String username);
+	User getUser(String username) throws UnknownUsernameException;
 }

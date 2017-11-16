@@ -1,6 +1,8 @@
 package tvestergaard.databaseassignment;
 
 import org.junit.Test;
+import tvestergaard.databaseassignment.database.users.MysqlUserDAO;
+import tvestergaard.databaseassignment.database.users.User;
 
 import java.util.List;
 

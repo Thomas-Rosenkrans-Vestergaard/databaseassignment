@@ -1,6 +1,7 @@
-package tvestergaard.databaseassignment;
+package tvestergaard.databaseassignment.database.teams;
 
 import com.google.common.collect.ImmutableList;
+import tvestergaard.databaseassignment.database.users.User;
 
 import java.util.ArrayList;
 import java.util.List;

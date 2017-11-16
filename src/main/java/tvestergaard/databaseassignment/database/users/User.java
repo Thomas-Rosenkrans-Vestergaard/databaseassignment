@@ -1,4 +1,4 @@
-package tvestergaard.databaseassignment;
+package tvestergaard.databaseassignment.database.users;
 
 public class User
 {

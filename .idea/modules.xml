@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/databaseassignment.iml" filepath="$PROJECT_DIR$/.idea/modules/databaseassignment.iml" />
+      <module fileurl="file://$PROJECT_DIR$/databaseassignment.iml" filepath="$PROJECT_DIR$/databaseassignment.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/databaseassignment_main.iml" filepath="$PROJECT_DIR$/.idea/modules/databaseassignment_main.iml" group="databaseassignment" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/databaseassignment_test.iml" filepath="$PROJECT_DIR$/.idea/modules/databaseassignment_test.iml" group="databaseassignment" />
     </modules>
