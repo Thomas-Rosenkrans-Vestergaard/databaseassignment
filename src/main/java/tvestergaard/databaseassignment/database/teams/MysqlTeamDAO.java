@@ -113,7 +113,7 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 			statement.setInt(1, id);
 			ResultSet teams = statement.executeQuery();
 			if (!teams.first())
-				throw new UnknownTeamIdException();
+				throw new UnknownTeamIdException(id);
 
 			Team team   = new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
 			int  userId = teams.getInt(USER_ID_COLUMN);
@@ -167,7 +167,7 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 			ResultSet teams = statement.executeQuery();
 
 			if (!teams.first())
-				throw new UnknownTeamNameException();
+				throw new UnknownTeamNameException(teamName);
 
 			Team team   = new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
 			int  userId = teams.getInt(USER_ID_COLUMN);
@@ -221,10 +221,9 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 			ResultSet  teams   = statement.executeQuery();
 			List<User> members = new ArrayList<>();
 			if (!teams.first())
-				throw new UnknownTeamIdException();
+				throw new UnknownTeamIdException(id);
 
 			do {
-				System.out.println("run");
 				int userId = teams.getInt(USER_ID_COLUMN);
 				if (!teams.wasNull()) {
 					members.add(new User(userId, teams.getString
@@ -268,7 +267,7 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 			List<User> members = new ArrayList<>();
 
 			if (!teams.first())
-				throw new UnknownTeamNameException();
+				throw new UnknownTeamNameException(teamName);
 
 			do {
 				int userId = teams.getInt(USER_ID_COLUMN);

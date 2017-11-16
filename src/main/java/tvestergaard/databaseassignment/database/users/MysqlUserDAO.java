@@ -89,7 +89,8 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
 	 * @param username The username of the user to retrieve.
 	 * @return The user with the provided username in the {@link DataSource}. Returns <code>null</code> in
 	 * case no user with the provided constrain exists.
-	 * @throws UnknownUsernameException When a user with the
+	 * @throws UnknownUsernameException When a user with the provided
+	 *                                  username doesn't exist.
 	 */
 	@Override public User getUser(String username) throws UnknownUsernameException
 	{
