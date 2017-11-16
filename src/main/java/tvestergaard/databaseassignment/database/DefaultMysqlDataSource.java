@@ -9,7 +9,7 @@ public class DefaultMysqlDataSource extends MysqlDataSource
 		setServerName("localhost");
 		setPort(3306);
 		setDatabaseName("databaseassignment");
-		setUser("root");
-		setPassword("2231302509");
+		setUser("test");
+		setPassword("test");
 	}
 }
