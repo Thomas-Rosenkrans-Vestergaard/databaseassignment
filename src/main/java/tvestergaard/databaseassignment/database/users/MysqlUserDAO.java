@@ -44,7 +44,7 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
 			ResultSet         teams          = teamsStatement.executeQuery();
 			ArrayList<User>   result         = new ArrayList<>();
 
-			if (teams.next())
+			while (teams.next())
 				result.add(new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
 						(PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN)));
 

@@ -2,86 +2,146 @@ package tvestergaard.databaseassignment.database.users;
 
 public class User
 {
-	private final int     id;
-	private       String  username;
-	private       String  password;
-	private       boolean admin;
 
-	public User(int id, String username, String password, boolean admin)
-	{
-		this.id = id;
-		this.username = username;
-		this.password = password;
-		this.admin = admin;
-	}
+    /**
+     * The id of the {@link User}.
+     */
+    private final int id;
 
-	public int getId()
-	{
-		return this.id;
-	}
+    /**
+     * The username of the {@link User}.
+     */
+    private String username;
 
-	public String getUsername()
-	{
-		return this.username;
-	}
+    /**
+     * The password of the {@link User}.
+     */
+    private String password;
 
-	public String getPassword()
-	{
-		return this.password;
-	}
+    /**
+     * Whether or not the {@link User} is an administrator.
+     */
+    private boolean admin;
 
-	public boolean isAdmin()
-	{
-		return this.admin;
-	}
+    /**
+     * Creates a new {@link User}.
+     *
+     * @param id  The id of the {@link User}.
+     * @param username The username of the {@link User}.
+     * @param password The password of the {@link User}.
+     * @param admin Whether or not the {@link User} is an administrator.
+     */
+    public User(int id, String username, String password, boolean admin)
+    {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.admin = admin;
+    }
 
-	public void setUsername(String username)
-	{
-		this.username = username;
-	}
+    /**
+     * Returns the {@link User} id.
+     *
+     * @return The {@link User} id.
+     */
+    public int getId()
+    {
+        return this.id;
+    }
 
-	public void setPassword(String password)
-	{
-		this.password = password;
-	}
+    /**
+     * Returns the {@link User}s username.
+     *
+     * @return The {@link User}s username.
+     */
+    public String getUsername()
+    {
+        return this.username;
+    }
 
-	public void setAdmin(boolean admin)
-	{
-		this.admin = admin;
-	}
+    /**
+     * Returns the {@link User}s password.
+     *
+     * @return The {@link User}s password.
+     */
+    public String getPassword()
+    {
+        return this.password;
+    }
 
-	@Override public String toString()
-	{
-		return "User{" +
-			   "id=" + id +
-			   ", username='" + username + '\'' +
-			   ", password='" + password + '\'' +
-			   ", admin=" + admin +
-			   '}';
-	}
+    /**
+     * Return whether or not the {@link User} is an administrator.
+     *
+     * @return Whether or not the {@link User} is an administrator.
+     */
+    public boolean isAdmin()
+    {
+        return this.admin;
+    }
+
+    /**
+     * Sets the username of the {@link User}.
+     *
+     * @param username The username to set.
+     */
+    public void setUsername(String username)
+    {
+        this.username = username;
+    }
+
+    /**
+     * Sets the password of the {@link User}
+     *
+     * @param password The password to set
+     */
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    /**
+     * Sets {@link User} administrator status.
+     *
+     * @param admin The administrator status to set.
+     */
+    public void setAdmin(boolean admin)
+    {
+        this.admin = admin;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", admin=" + admin +
+                '}';
+    }
 
 
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-		User user = (User) o;
+        User user = (User) o;
 
-		if (id != user.id) return false;
-		if (admin != user.admin) return false;
-		if (!username.equals(user.username)) return false;
-		return password.equals(user.password);
-	}
+        if (id != user.id) return false;
+        if (admin != user.admin) return false;
+        if (!username.equals(user.username)) return false;
+        return password.equals(user.password);
+    }
 
-	@Override
-	public int hashCode()
-	{
-		int result = id;
-		result = 31 * result + username.hashCode();
-		result = 31 * result + password.hashCode();
-		result = 31 * result + (admin ? 1 : 0);
-		return result;
-	}
+    @Override
+    public int hashCode()
+    {
+        int result = id;
+        result = 31 * result + username.hashCode();
+        result = 31 * result + password.hashCode();
+        result = 31 * result + (admin ? 1 : 0);
+        return result;
+    }
 }
