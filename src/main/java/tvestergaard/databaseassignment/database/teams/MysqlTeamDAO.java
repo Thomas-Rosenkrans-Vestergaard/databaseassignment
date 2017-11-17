@@ -61,20 +61,19 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                     result.add(currentTeam);
                     int userId = teams.getInt(USER_ID_COLUMN);
                     if (!teams.wasNull()) {
-                        User user = new User(userId, teams.getString
-                                (USERNAME_COLUMN), teams.getString
-                                (PASSWORD_COLUMN), teams.getBoolean
-                                (ADMIN_COLUMN));
-                        currentTeam.addMember(user);
+                        currentTeam.addMember(new User(
+                                userId,
+                                teams.getString(USERNAME_COLUMN),
+                                teams.getString(PASSWORD_COLUMN),
+                                teams.getBoolean(ADMIN_COLUMN)));
                     }
                 } else {
                     int userId = teams.getInt(USER_ID_COLUMN);
                     if (!teams.wasNull()) {
-                        User user = new User(userId, teams.getString
+                        currentTeam.addMember(new User(userId, teams.getString
                                 (USERNAME_COLUMN), teams.getString
                                 (PASSWORD_COLUMN), teams.getBoolean
-                                (ADMIN_COLUMN));
-                        currentTeam.addMember(user);
+                                (ADMIN_COLUMN)));
                     }
                 }
             }
@@ -122,10 +121,11 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
             do {
                 int userId = teams.getInt(USER_ID_COLUMN);
                 if (!teams.wasNull()) {
-                    team.addMember(new User(userId, teams.getString
-                            (USERNAME_COLUMN), teams.getString
-                            (PASSWORD_COLUMN), teams.getBoolean
-                            (ADMIN_COLUMN)));
+                    team.addMember(new User(
+                            userId,
+                            teams.getString(USERNAME_COLUMN),
+                            teams.getString(PASSWORD_COLUMN),
+                            teams.getBoolean(ADMIN_COLUMN)));
                 }
             } while (teams.next());
 
@@ -171,10 +171,11 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
             do {
                 int userId = teams.getInt(USER_ID_COLUMN);
                 if (!teams.wasNull()) {
-                    team.addMember(new User(userId, teams.getString
-                            (USERNAME_COLUMN), teams.getString
-                            (PASSWORD_COLUMN), teams.getBoolean
-                            (ADMIN_COLUMN)));
+                    team.addMember(new User(
+                            userId,
+                            teams.getString(USERNAME_COLUMN),
+                            teams.getString(PASSWORD_COLUMN),
+                            teams.getBoolean(ADMIN_COLUMN)));
                 }
             } while (teams.next());
 
@@ -216,10 +217,11 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
             do {
                 int userId = teams.getInt(USER_ID_COLUMN);
                 if (!teams.wasNull()) {
-                    members.add(new User(userId, teams.getString
-                            (USERNAME_COLUMN), teams.getString
-                            (PASSWORD_COLUMN), teams.getBoolean
-                            (ADMIN_COLUMN)));
+                    members.add(new User(
+                            userId,
+                            teams.getString(USERNAME_COLUMN),
+                            teams.getString(PASSWORD_COLUMN),
+                            teams.getBoolean(ADMIN_COLUMN)));
                 }
             } while (teams.next());
 
@@ -263,10 +265,11 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
             do {
                 int userId = teams.getInt(USER_ID_COLUMN);
                 if (!teams.wasNull()) {
-                    members.add(new User(userId, teams.getString
-                            (USERNAME_COLUMN), teams.getString
-                            (PASSWORD_COLUMN), teams.getBoolean
-                            (ADMIN_COLUMN)));
+                    members.add(new User(
+                            userId,
+                            teams.getString(USERNAME_COLUMN),
+                            teams.getString(PASSWORD_COLUMN),
+                            teams.getBoolean(ADMIN_COLUMN)));
                 }
             } while (teams.next());
 
