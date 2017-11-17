@@ -1,6 +1,7 @@
 package tvestergaard.databaseassignment.database.users;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
+import org.omg.CORBA.UnknownUserException;
 import tvestergaard.databaseassignment.database.AbstractMysqlDAO;
 import tvestergaard.databaseassignment.database.OpenDAOException;
 
@@ -108,5 +109,43 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    /**
+     * Inserts the provided {@link User} into the {@link UserDAO}. Relations to members of the {@link User}
+     * are also created.
+     *
+     * @param userBuilder The {@link UserBuilder} to model the {@link User} to insert into the {@link UserDAO}.
+     * @return The newly created {@link User} record.
+     */
+    @Override
+    public User insertUser(UserBuilder userBuilder)
+    {
+        return null;
+    }
+
+    /**
+     * Updates the provided {@link User} in the {@link UserDAO}.
+     *
+     * @param user The {@link User} to update in the {@link UserDAO}.
+     * @throws UnknownUserException When the {@link User} to update can't be found in the {@link UserDAO}.
+     */
+    @Override
+    public void updateUser(User user) throws UnknownUserException
+    {
+
+    }
+
+    /**
+     * Deletes the provided {@link User} from the provided {@link UserDAO}.
+     *
+     * @param user The {@link UserReference} to delete from the {@link UserDAO}.
+     * @throws UnknownUserReferenceException When the provided {@link UserReference} doesn't exist in the
+     *                                       {@link UserDAO}.
+     */
+    @Override
+    public void deleteUser(UserReference user) throws UnknownUserReferenceException
+    {
+
     }
 }

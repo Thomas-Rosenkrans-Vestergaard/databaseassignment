@@ -48,7 +48,7 @@ public interface UserDAO extends DAO
      * Updates the provided {@link User} in the {@link UserDAO}.
      *
      * @param user The {@link User} to update in the {@link UserDAO}.
-     * @throws UnknownUserException When the {@link User} to update can't be found in the {@link DAO}.
+     * @throws UnknownUserException When the {@link User} to update can't be found in the {@link UserDAO}.
      */
     void updateUser(User user) throws UnknownUserException;
 
