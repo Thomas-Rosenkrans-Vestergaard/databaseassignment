@@ -6,9 +6,7 @@ import tvestergaard.databaseassignment.database.AbstractMysqlDAO;
 import tvestergaard.databaseassignment.database.OpenDAOException;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,7 +119,41 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
     @Override
     public User insertUser(UserBuilder userBuilder)
     {
-        return null;
+        String userSQL = String.format("INSERT INTO users (`%s`, `%s`, `%s`) VALUES (?, ?, ?);",
+                USERNAME_COLUMN,
+                PASSWORD_COLUMN,
+                ADMIN_COLUMN);
+
+        PreparedStatement userStatement = null;
+
+        try {
+
+            try {
+
+                userStatement = connection.prepareStatement(userSQL, Statement.RETURN_GENERATED_KEYS);
+                userStatement.setString(1, userBuilder.getUsername());
+                userStatement.setString(2, userBuilder.getPassword());
+                userStatement.setBoolean(3, userBuilder.isAdmin());
+                userStatement.executeUpdate();
+                ResultSet insertedIndex = userStatement.getGeneratedKeys();
+                insertedIndex.next();
+                int userId = insertedIndex.getInt(1);
+
+                connection.commit();
+
+                return getUser(userId);
+
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                if (userStatement != null)
+                    userStatement.close();
+            }
+
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     /**
