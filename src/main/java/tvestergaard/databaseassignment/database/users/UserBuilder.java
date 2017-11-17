@@ -11,9 +11,11 @@ public class UserBuilder
         return this.username;
     }
 
-    public void setUsername(String username)
+    public UserBuilder setUsername(String username)
     {
         this.username = username;
+
+        return this;
     }
 
     public String getPassword()
@@ -21,9 +23,11 @@ public class UserBuilder
         return this.password;
     }
 
-    public void setPassword(String password)
+    public UserBuilder setPassword(String password)
     {
         this.password = password;
+
+        return this;
     }
 
     public boolean isAdmin()
@@ -31,8 +35,10 @@ public class UserBuilder
         return this.admin;
     }
 
-    public void setAdmin(boolean admin)
+    public UserBuilder setAdmin(boolean admin)
     {
         this.admin = admin;
+
+        return this;
     }
 }
