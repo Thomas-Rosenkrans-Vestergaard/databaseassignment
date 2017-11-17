@@ -348,9 +348,13 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
     {
         String teamCheckNameSQL = String.format("SELECT count(*) FROM teams WHERE team_name = ?;");
         String teamSQL = String.format("UPDATE teams SET `%s` = ? WHERE team_id = ?;", TEAM_NAME_COLUMN);
+        String deleteMembersSQL = String.format("DELETE FROM team_members WHERE team_id = ?;");
+        String addMemberSQL = String.format("INSERT INTO team_members (team_id, user_id) VALUES (?, ?);");
 
         PreparedStatement teamCheckNameStatement = null;
         PreparedStatement teamStatement = null;
+        PreparedStatement deleteMembersStatement = null;
+        PreparedStatement addMemberStatement = null;
 
         try {
 
@@ -372,6 +376,17 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                 if (updated < 1)
                     throw new UnknownTeamException(team);
 
+                deleteMembersStatement = connection.prepareStatement(deleteMembersSQL);
+                deleteMembersStatement.setInt(1, team.getId());
+                deleteMembersStatement.executeUpdate();
+
+                addMemberStatement = connection.prepareStatement(addMemberSQL);
+                addMemberStatement.setInt(1, team.getId());
+                for (User member : team.getMembers()) {
+                    addMemberStatement.setInt(2, member.getId());
+                    addMemberStatement.executeUpdate();
+                }
+
                 connection.commit();
 
             } catch (Exception e) {
@@ -382,6 +397,10 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                     teamCheckNameStatement.close();
                 if (teamStatement != null)
                     teamStatement.close();
+                if (deleteMembersStatement != null)
+                    deleteMembersStatement.close();
+                if (addMemberStatement != null)
+                    addMemberStatement.close();
             }
 
         } catch (TeamNameTakenException | UnknownTeamException e) {

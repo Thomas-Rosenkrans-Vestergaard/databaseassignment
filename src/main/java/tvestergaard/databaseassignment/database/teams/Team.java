@@ -121,6 +121,54 @@ public class Team extends TeamReference
     }
 
     /**
+     * Removes the member with the provided id.
+     *
+     * @param id The id of the member to remove.
+     * @throws UnknownUserIdException When a member with the provided id doesn't exist.
+     */
+    public void removeMember(int id) throws UnknownUserIdException
+    {
+        for (User member : members) {
+            if (member.getId() == id) {
+                members.remove(member);
+                return;
+            }
+        }
+
+        throw new UnknownUserIdException(id);
+    }
+
+    /**
+     * Removes the member referenced by the provided {@link UserReference}.
+     *
+     * @param userReference The {@link UserReference} referencing the member to remove.
+     * @throws UnknownUserReferenceException When the member referenced by the {@link UserReference} doesn't exist.
+     */
+    public void removeMember(UserReference userReference) throws UnknownUserReferenceException
+    {
+        try {
+            removeMember(userReference.getId());
+        } catch (UnknownUserIdException e) {
+            throw new UnknownUserReferenceException(userReference);
+        }
+    }
+
+    /**
+     * Removes the member matching the provided {@link User}.
+     *
+     * @param member The member to remove.
+     * @throws UnknownUserException When the provided {@link User} doesn't exist as a member.
+     */
+    public void removeMember(User member) throws UnknownUserException
+    {
+        try {
+            removeMember(member.getId());
+        } catch (UnknownUserIdException e) {
+            throw new UnknownUserException(member);
+        }
+    }
+
+    /**
      * Checks if a {@link User} with the provided id is a members of the {@link Team}.
      *
      * @param id The id of the {@link User} to check for.

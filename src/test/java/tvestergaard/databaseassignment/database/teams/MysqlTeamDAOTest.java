@@ -130,13 +130,22 @@ public class MysqlTeamDAOTest
         TeamBuilder builder = new TeamBuilder();
         String expectedName = "A";
         builder.setName(expectedName);
-        builder.addMember(UserReference.of(1));
-        builder.addMember(UserReference.of(2));
-        Team result = dao.insertTeam(builder);
-        assertEquals(expectedName, result.getName());
-        assertTrue(result.hasMember(1));
-        assertTrue(result.hasMember(2));
-        assertFalse(result.hasMember(3));
+        dao.insertTeam(builder);
+    }
+
+    @Test
+    public void insertTeamThrowsTeamNameTakenExceptionRollback() throws Exception
+    {
+        TeamBuilder builder = new TeamBuilder();
+        String expectedName = "A";
+        builder.setName(expectedName);
+
+        try {
+            dao.insertTeam(builder);
+            fail();
+        } catch (TeamNameTakenException e) {
+            assertEquals(3, dao.getTeams().size());
+        }
     }
 
     @Test
@@ -149,6 +158,20 @@ public class MysqlTeamDAOTest
         dao.updateTeam(before);
         Team after = dao.getTeam(1);
         assertEquals(before, after);
+    }
+
+    @Test
+    public void updateTeamUpdatesMembers() throws Exception
+    {
+        Team before = dao.getTeam(1);
+        assertEquals("A", before.getName());
+        assertEquals(3, before.getMembers().size());
+        before.setName("D");
+        before.removeMember(2);
+        dao.updateTeam(before);
+        Team after = dao.getTeam(1);
+        assertEquals(before, after);
+        assertEquals(2, after.getMembers().size());
     }
 
     @Test(expected = UnknownTeamException.class)
@@ -166,6 +189,22 @@ public class MysqlTeamDAOTest
         assertEquals(3, before.getMembers().size());
         before.setName("B");
         dao.updateTeam(before);
+    }
+
+    @Test
+    public void updateTeamThrowsTeamNameTakenExceptionRollback() throws Exception
+    {
+        Team before = dao.getTeam(1);
+        assertEquals("A", before.getName());
+        assertEquals(3, before.getMembers().size());
+        before.setName("B");
+        try {
+            dao.updateTeam(before);
+            fail();
+        } catch (TeamNameTakenException e) {
+            Team after = dao.getTeam(1);
+            assertEquals(before, after);
+        }
     }
 
     @Test

@@ -106,6 +106,84 @@ public class TeamTest
     }
 
     @Test
+    public void removeMemberByID() throws Exception
+    {
+        Team team = new Team(0, null);
+        User user = new User(0, "A", null, false);
+        team.addMember(user);
+        assertTrue(team.hasMember(0));
+        team.removeMember(0);
+        assertFalse(team.hasMember(0));
+    }
+
+    @Test
+    public void removeMemberByIDThrowsUnknownUserIdException() throws Exception
+    {
+        Team team = new Team(0, null);
+        User user = new User(0, "A", null, false);
+        team.addMember(user);
+        assertTrue(team.hasMember(0));
+        try {
+            team.removeMember(0);
+            fail();
+        } catch (Exception e) {
+            assertTrue(team.hasMember(0));
+        }
+    }
+
+    @Test
+    public void removeMemberByUserReference() throws Exception
+    {
+        Team team = new Team(0, null);
+        User user = new User(0, "A", null, false);
+        team.addMember(user);
+        assertTrue(team.hasMember(0));
+        team.removeMember(UserReference.of(0));
+        assertFalse(team.hasMember(0));
+    }
+
+    @Test
+    public void removeMemberByUserReferenceThrowsUnknownUserReferenceException() throws Exception
+    {
+        Team team = new Team(0, null);
+        User user = new User(0, "A", null, false);
+        team.addMember(user);
+        assertTrue(team.hasMember(0));
+        try {
+            team.removeMember(UserReference.of(0));
+            fail();
+        } catch (Exception e) {
+            assertTrue(team.hasMember(0));
+        }
+    }
+
+    @Test
+    public void removeMemberByUser() throws Exception
+    {
+        Team team = new Team(0, null);
+        User user = new User(0, "A", null, false);
+        team.addMember(user);
+        assertTrue(team.hasMember(0));
+        team.removeMember(user);
+        assertFalse(team.hasMember(0));
+    }
+
+    @Test
+    public void removeMemberByUserThrowsUnknownUserException() throws Exception
+    {
+        Team team = new Team(0, null);
+        User user = new User(0, "A", null, false);
+        team.addMember(user);
+        assertTrue(team.hasMember(0));
+        try {
+            team.removeMember(user);
+            fail();
+        } catch (Exception e) {
+            assertTrue(team.hasMember(0));
+        }
+    }
+
+    @Test
     public void hasMemberByID() throws Exception
     {
         Team team = new Team(0, null);
