@@ -1,6 +1,7 @@
 package tvestergaard.databaseassignment.database.teams;
 
 import tvestergaard.databaseassignment.database.DAO;
+import tvestergaard.databaseassignment.database.users.UnknownUserReferenceException;
 import tvestergaard.databaseassignment.database.users.User;
 
 import java.util.List;
@@ -68,18 +69,20 @@ public interface TeamDAO extends DAO
      *
      * @param teamBuilder The {@link TeamBuilder} to model the {@link Team} the insert into the {@link TeamDAO}.
      * @return The newly created {@link Team} record.
-     * @throws TeamNameTakenException When the {@link TeamBuilder} name is already taken.
+     * @throws TeamNameTakenException        When the {@link TeamBuilder} name is already taken.
+     * @throws UnknownUserReferenceException When one of the {@link Team} members don't exist in the database.
      */
-    Team insertTeam(TeamBuilder teamBuilder) throws TeamNameTakenException;
+    Team insertTeam(TeamBuilder teamBuilder) throws TeamNameTakenException, UnknownUserReferenceException;
 
     /**
      * Updates the provided {@link Team} in the {@link TeamDAO}.
      *
      * @param team The {@link Team} to update in the {@link TeamDAO}..
-     * @throws UnknownTeamException   When the {@link Team} to update can't be found in the {@link DAO}.
-     * @throws TeamNameTakenException When the name to update the {@link Team} to is already taken.
+     * @throws UnknownTeamException          When the {@link Team} to update can't be found in the {@link DAO}.
+     * @throws TeamNameTakenException        When the name to update the {@link Team} to is already taken.
+     * @throws UnknownUserReferenceException When one of the {@link Team} members don't exist in the database.
      */
-    void updateTeam(Team team) throws UnknownTeamException, TeamNameTakenException;
+    void updateTeam(Team team) throws UnknownTeamException, TeamNameTakenException, UnknownUserReferenceException;
 
     /**
      * Deletes the provided {@link Team} from the {@link TeamDAO}.

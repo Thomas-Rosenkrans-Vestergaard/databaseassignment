@@ -3,6 +3,7 @@ package tvestergaard.databaseassignment.database.teams;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import tvestergaard.databaseassignment.database.AbstractMysqlDAO;
 import tvestergaard.databaseassignment.database.OpenDAOException;
+import tvestergaard.databaseassignment.database.users.UnknownUserReferenceException;
 import tvestergaard.databaseassignment.database.users.User;
 import tvestergaard.databaseassignment.database.users.UserReference;
 
@@ -269,21 +270,24 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
     }
 
     /**
-     * Inserts the provided {@link Team} into the {@link DataSource}. Relations to members of the {@link Team}
+     * Inserts the provided {@link Team} into the {@link TeamDAO}. Relations to members of the {@link Team}
      * are also created. Notice that members of the {@link Team} are not created, only their relation to the {@link Team}.
      *
-     * @param teamBuilder The {@link TeamBuilder} to model the {@link Team} the insert into the {@link DataSource}.
+     * @param teamBuilder The {@link TeamBuilder} to model the {@link Team} the insert into the {@link TeamDAO}.
      * @return The newly created {@link Team} record.
-     * @throws TeamNameTakenException When the {@link TeamBuilder} name is already taken.
+     * @throws TeamNameTakenException        When the {@link TeamBuilder} name is already taken.
+     * @throws UnknownUserReferenceException When one of the {@link Team} members don't exist in the database.
      */
     @Override
-    public Team insertTeam(TeamBuilder teamBuilder) throws TeamNameTakenException
+    public Team insertTeam(TeamBuilder teamBuilder) throws TeamNameTakenException, UnknownUserReferenceException
     {
         String teamCheckSQL = String.format("SELECT count(*) FROM teams WHERE team_name = ?;");
+        String userCheckSQL = String.format("SELECT count(*) FROM users WHERE user_id = ?;");
         String teamSQL = String.format("INSERT INTO teams (%s) VALUES (?);", TEAM_NAME_COLUMN);
         String memberSQL = String.format("INSERT INTO team_members (%s, %s) VALUES (?, ?);", TEAM_MEMBERS_TEAM_COLUMN, TEAM_MEMBERS_USER_COLUMN);
 
         PreparedStatement teamCheckStatement = null;
+        PreparedStatement userCheckStatement = null;
         PreparedStatement teamStatement = null;
         PreparedStatement memberStatement = null;
 
@@ -299,14 +303,23 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                 if (teamCheckResult.getInt(1) > 0)
                     throw new TeamNameTakenException(teamBuilder.getName());
 
+                userCheckStatement = connection.prepareStatement(userCheckSQL);
+                for (UserReference member : teamBuilder.getMembers()) {
+                    userCheckStatement.setInt(1, member.getId());
+                    ResultSet userCheckStatementResult = userCheckStatement.executeQuery();
+                    userCheckStatementResult.first();
+                    if (userCheckStatementResult.getInt(1) < 1)
+                        throw new UnknownUserReferenceException(member);
+                }
+
                 teamStatement = connection.prepareStatement(teamSQL, Statement.RETURN_GENERATED_KEYS);
-                memberStatement = connection.prepareStatement(memberSQL);
                 teamStatement.setString(1, teamBuilder.getName());
                 teamStatement.executeUpdate();
                 ResultSet insertedIndex = teamStatement.getGeneratedKeys();
                 insertedIndex.next();
                 int teamId = insertedIndex.getInt(1);
 
+                memberStatement = connection.prepareStatement(memberSQL);
                 for (UserReference member : teamBuilder.getMembers()) {
                     memberStatement.setInt(1, teamId);
                     memberStatement.setInt(2, member.getId());
@@ -323,13 +336,15 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
             } finally {
                 if (teamCheckStatement != null)
                     teamCheckStatement.close();
+                if (userCheckStatement != null)
+                    userCheckStatement.close();
                 if (teamStatement != null)
                     teamStatement.close();
                 if (memberStatement != null)
                     memberStatement.close();
             }
 
-        } catch (TeamNameTakenException e) {
+        } catch (TeamNameTakenException | UnknownUserReferenceException e) {
             throw e;
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -337,22 +352,25 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
     }
 
     /**
-     * Updates the provided {@link Team} in the {@link DataSource}.
+     * Updates the provided {@link Team} in the {@link TeamDAO}.
      *
-     * @param team The {@link Team} to update in the {@link DataSource}.
-     * @throws UnknownTeamException   When the {@link Team} to update can't be found in the {@link tvestergaard.databaseassignment.database.DAO}.
-     * @throws TeamNameTakenException When the name to update the {@link Team} to is already taken.
+     * @param team The {@link Team} to update in the {@link TeamDAO}..
+     * @throws UnknownTeamException          When the {@link Team} to update can't be found in the {@link tvestergaard.databaseassignment.database.DAO}.
+     * @throws TeamNameTakenException        When the name to update the {@link Team} to is already taken.
+     * @throws UnknownUserReferenceException When one of the {@link Team} members don't exist in the database.
      */
     @Override
-    public void updateTeam(Team team) throws UnknownTeamException, TeamNameTakenException
+    public void updateTeam(Team team) throws UnknownTeamException, TeamNameTakenException, UnknownUserReferenceException
     {
-        String teamCheckNameSQL = String.format("SELECT count(*) FROM teams WHERE team_name = ?;");
+        String teamCheckNameSQL = String.format("SELECT count(*) FROM teams WHERE team_name = ? && team_id != ?;");
         String teamSQL = String.format("UPDATE teams SET `%s` = ? WHERE team_id = ?;", TEAM_NAME_COLUMN);
+        String userCheckSQL = String.format("SELECT count(*) FROM users WHERE user_id = ?;");
         String deleteMembersSQL = String.format("DELETE FROM team_members WHERE team_id = ?;");
         String addMemberSQL = String.format("INSERT INTO team_members (team_id, user_id) VALUES (?, ?);");
 
         PreparedStatement teamCheckNameStatement = null;
         PreparedStatement teamStatement = null;
+        PreparedStatement userCheckStatement = null;
         PreparedStatement deleteMembersStatement = null;
         PreparedStatement addMemberStatement = null;
 
@@ -362,6 +380,7 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 
                 teamCheckNameStatement = connection.prepareStatement(teamCheckNameSQL);
                 teamCheckNameStatement.setString(1, team.getName());
+                teamCheckNameStatement.setInt(2, team.getId());
                 ResultSet teamCheckNameResult = teamCheckNameStatement.executeQuery();
                 teamCheckNameResult.next();
 
@@ -375,6 +394,15 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 
                 if (updated < 1)
                     throw new UnknownTeamException(team);
+
+                userCheckStatement = connection.prepareStatement(userCheckSQL);
+                for (UserReference member : team.getMembers()) {
+                    userCheckStatement.setInt(1, member.getId());
+                    ResultSet userCheckStatementResult = userCheckStatement.executeQuery();
+                    userCheckStatementResult.first();
+                    if (userCheckStatementResult.getInt(1) < 1)
+                        throw new UnknownUserReferenceException(member);
+                }
 
                 deleteMembersStatement = connection.prepareStatement(deleteMembersSQL);
                 deleteMembersStatement.setInt(1, team.getId());
@@ -397,13 +425,15 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                     teamCheckNameStatement.close();
                 if (teamStatement != null)
                     teamStatement.close();
+                if (userCheckStatement != null)
+                    userCheckStatement.close();
                 if (deleteMembersStatement != null)
                     deleteMembersStatement.close();
                 if (addMemberStatement != null)
                     addMemberStatement.close();
             }
 
-        } catch (TeamNameTakenException | UnknownTeamException e) {
+        } catch (TeamNameTakenException | UnknownTeamException | UnknownUserReferenceException e) {
             throw e;
         } catch (Exception e) {
             throw new IllegalStateException(e);

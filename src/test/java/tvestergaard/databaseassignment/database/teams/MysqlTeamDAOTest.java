@@ -3,6 +3,7 @@ package tvestergaard.databaseassignment.database.teams;
 import org.junit.Before;
 import org.junit.Test;
 import tvestergaard.databaseassignment.database.MysqlMemoryDatabase;
+import tvestergaard.databaseassignment.database.users.UnknownUserReferenceException;
 import tvestergaard.databaseassignment.database.users.User;
 import tvestergaard.databaseassignment.database.users.UserReference;
 
@@ -113,7 +114,7 @@ public class MysqlTeamDAOTest
     public void insertTeam() throws Exception
     {
         TeamBuilder builder = new TeamBuilder();
-        String expectedName = "AA";
+        String expectedName = "D";
         builder.setName(expectedName);
         builder.addMember(UserReference.of(1));
         builder.addMember(UserReference.of(2));
@@ -130,6 +131,16 @@ public class MysqlTeamDAOTest
         TeamBuilder builder = new TeamBuilder();
         String expectedName = "A";
         builder.setName(expectedName);
+        dao.insertTeam(builder);
+    }
+
+    @Test(expected = UnknownUserReferenceException.class)
+    public void insertTeamThrowsUnknownUserReferenceException() throws Exception
+    {
+        TeamBuilder builder = new TeamBuilder();
+        String expectedName = "D";
+        builder.setName(expectedName);
+        builder.addMember(UserReference.of(7683));
         dao.insertTeam(builder);
     }
 
@@ -158,6 +169,16 @@ public class MysqlTeamDAOTest
         dao.updateTeam(before);
         Team after = dao.getTeam(1);
         assertEquals(before, after);
+    }
+
+    @Test(expected = UnknownUserReferenceException.class)
+    public void updateTeamThrowsUnknownUserReferenceException() throws Exception
+    {
+        Team team = dao.getTeam(1);
+        assertEquals("A", team.getName());
+        assertEquals(3, team.getMembers().size());
+        team.addMember(new User(234, null, null, false));
+        dao.updateTeam(team);
     }
 
     @Test
