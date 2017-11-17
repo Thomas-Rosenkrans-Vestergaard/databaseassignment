@@ -1,9 +1,7 @@
 package tvestergaard.databaseassignment.database.teams;
 
 import com.google.common.collect.ImmutableList;
-import tvestergaard.databaseassignment.database.users.UnknownUserIdException;
-import tvestergaard.databaseassignment.database.users.UnknownUsernameException;
-import tvestergaard.databaseassignment.database.users.User;
+import tvestergaard.databaseassignment.database.users.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,11 +89,11 @@ public class Team extends TeamReference
     }
 
     /**
-     * Returns the member with the provided id.
+     * Returns the {@link User} member with the provided id.
      *
-     * @param id The id of the member to return.
-     * @return The member with the provided id.
-     * @throws UnknownUsernameException When a member with the provided id doesn't exist.
+     * @param id The id of the {@link User} member to return.
+     * @return The {@link User} member with the provided id.
+     * @throws UnknownUsernameException When a {@link User} member with the provided id doesn't exist.
      */
     public User getMember(int id) throws UnknownUserIdException
     {
@@ -107,10 +105,26 @@ public class Team extends TeamReference
     }
 
     /**
+     * Returns the {@link User} member referenced by the provided {@link UserReference}.
+     *
+     * @param userReference The {@link UserReference} referencing the {@link User} member to return.
+     * @return The {@link User} member referenced by the provided {@link UserReference}.
+     * @throws UnknownUsernameException When a {@link User} member referenced by the provided {@link UserReference} doesn't exist.
+     */
+    public User getMember(UserReference userReference) throws UnknownUserReferenceException
+    {
+        try {
+            return getMember(userReference.getId());
+        } catch (UnknownUserIdException e) {
+            throw new UnknownUserReferenceException(userReference);
+        }
+    }
+
+    /**
      * Checks if a {@link User} with the provided id is a members of the {@link Team}.
      *
      * @param id The id of the {@link User} to check for.
-     * @return True when a {@link User} with the provided id is a member of the {@link Team}.
+     * @return True when a {@link User} with the provided id is a member of the {@link Team}. Returns false otherwise.
      */
     public boolean hasMember(int id)
     {
@@ -119,6 +133,18 @@ public class Team extends TeamReference
                 return true;
 
         return false;
+    }
+
+    /**
+     * Checks if the {@link User} referenced by the provided {@link UserReference} is a members of the {@link Team}.
+     *
+     * @param userReference The {@link UserReference} referencing the {@link User} to check the membership of.
+     * @return True when a {@link User} referenced by the provided {@link UserReference} is a member of the
+     * {@link Team}. Returns false otherwise.
+     */
+    public boolean hasMember(UserReference userReference)
+    {
+        return hasMember(userReference.getId());
     }
 
     /**

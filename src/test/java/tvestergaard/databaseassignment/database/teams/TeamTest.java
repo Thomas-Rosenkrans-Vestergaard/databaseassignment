@@ -1,9 +1,7 @@
 package tvestergaard.databaseassignment.database.teams;
 
 import org.junit.Test;
-import tvestergaard.databaseassignment.database.users.UnknownUserIdException;
-import tvestergaard.databaseassignment.database.users.UnknownUsernameException;
-import tvestergaard.databaseassignment.database.users.User;
+import tvestergaard.databaseassignment.database.users.*;
 
 import static org.junit.Assert.*;
 
@@ -76,6 +74,22 @@ public class TeamTest
     }
 
     @Test
+    public void getMemberByUserReference() throws Exception
+    {
+        Team team = new Team(0, null);
+        User user = new User(5, null, null, false);
+        team.addMember(user);
+        assertSame(user, team.getMember(UserReference.of(5)));
+    }
+
+    @Test(expected = UnknownUserReferenceException.class)
+    public void getMemberByUserReferenceThrowsUnknownUserReferenceException() throws Exception
+    {
+        Team team = new Team(0, null);
+        team.getMember(UserReference.of(5));
+    }
+
+    @Test
     public void getMemberByTeamName() throws Exception
     {
         Team team = new Team(0, null);
@@ -98,6 +112,15 @@ public class TeamTest
         assertFalse(team.hasMember(1));
         team.addMember(new User(1, null, null, false));
         assertTrue(team.hasMember(1));
+    }
+
+    @Test
+    public void hasMemberByUserReference() throws Exception
+    {
+        Team team = new Team(0, null);
+        assertFalse(team.hasMember(UserReference.of(1)));
+        team.addMember(new User(1, null, null, false));
+        assertTrue(team.hasMember(UserReference.of(1)));
     }
 
     @Test

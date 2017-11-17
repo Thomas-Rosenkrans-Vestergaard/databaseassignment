@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 
 public class MysqlUserDAOTest
 {
+
     private MysqlUserDAO dao;
 
     @Before
@@ -32,6 +33,23 @@ public class MysqlUserDAOTest
     @Test
     public void getUserByID() throws Exception
     {
+        User user = dao.getUser(1);
+        assertNotNull(user);
+        assertEquals(1, user.getId());
+        assertEquals("Anders And", user.getUsername());
+        assertEquals("1234", user.getPassword());
+        assertEquals(true, user.isAdmin());
+    }
+
+    @Test(expected = UnknownUserIdException.class)
+    public void getUserByIDThrowsUnknownUserIdException() throws Exception
+    {
+        dao.getUser(100);
+    }
+
+    @Test
+    public void getUserByUserReference() throws Exception
+    {
         User user = dao.getUser(UserReference.of(1));
         assertNotNull(user);
         assertEquals(1, user.getId());
@@ -40,9 +58,8 @@ public class MysqlUserDAOTest
         assertEquals(true, user.isAdmin());
     }
 
-
     @Test(expected = UnknownUserReferenceException.class)
-    public void getUserByIDThrowsUnknownUserIdException() throws Exception
+    public void getUserByIDThrowsUnknownUserReferenceException() throws Exception
     {
         dao.getUser(UserReference.of(100));
     }
@@ -90,6 +107,21 @@ public class MysqlUserDAOTest
         assertEquals(expectedAdmin, user.isAdmin());
 
         dao.getUser(expectedUsername);
+    }
+
+    @Test
+    public void updateUser() throws Exception
+    {
+        User before = dao.getUser(UserReference.of(1));
+        before.setUsername("D");
+        dao.updateUser(before);
+        assertEquals(before, dao.getUser(UserReference.of(1)));
+    }
+
+    @Test(expected = UnknownUserException.class)
+    public void updateUserThrowsUnknownUserException() throws Exception
+    {
+        dao.updateUser(new User(100, null, null, false));
     }
 
     @Test(expected = UnknownUserReferenceException.class)

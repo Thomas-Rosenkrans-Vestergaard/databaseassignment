@@ -9,49 +9,58 @@ public interface TeamDAO extends DAO
 {
 
     /**
-     * Returns a complete list of the teams in the provided {@link TeamDAO}.
+     * Returns a complete list of the teams in the {@link TeamDAO}.
      *
-     * @return The complete list of the teams in the provided {@link TeamDAO}.
+     * @return The complete list of the teams in the {@link TeamDAO}.
      */
     List<Team> getTeams();
 
     /**
-     * Returns the team with the provided id in the {@link TeamDAO}.{.
+     * Returns the {@link Team} with the provided id in the {@link TeamDAO}.
      *
-     * @param id The id of the team to retrieve.
-     * @return The team with the provided id in the {@link TeamDAO}. Returns <code>null</code> in case
-     * no team with the provided constrain exists.
-     * @throws UnknownTeamIdException When a team with the provided id doesn't exist.
+     * @param id The id of the {@link Team} to retrieve.
+     * @return The {@link Team} with the provided id in the {@link TeamDAO}.
+     * @throws UnknownTeamIdException When the {@link Team} with the provided id doesn't exist.
      */
     Team getTeam(int id) throws UnknownTeamIdException;
+
+    /**
+     * Returns the {@link Team} referenced by the provided {@link TeamReference} in the {@link TeamDAO}.
+     *
+     * @param teamReference The {@link TeamReference} pointing to the {@link Team} to retrieve.
+     * @return The {@link Team} referenced by the provided {@link TeamReference} in the {@link TeamDAO}.
+     * @throws UnknownTeamReferenceException When the {@link Team} referenced by the provided {@link TeamReference} doesn't
+     *                                       exist.
+     */
+    Team getTeam(TeamReference teamReference) throws UnknownTeamReferenceException;
 
     /**
      * Returns the team with the provided teamName in the {@link TeamDAO}.
      *
      * @param teamName The teamName of the team to retrieve.
-     * @return The team with the provided teamName in the {@link TeamDAO}. Returns <code>null</code> in
-     * case no team with the provided constrain exists.
-     * @throws UnknownTeamNameException When the provided teamName doesn't exist.
+     * @return The team with the provided teamName in the {@link TeamDAO}.
+     * @throws UnknownTeamNameException When the {@link Team} with the provided name doesn't exist.
      */
     Team getTeam(String teamName) throws UnknownTeamNameException;
 
     /**
-     * Returns a list of the {@link User}s in the {@link Team} with the provided identifier.
+     * Returns a list of the {@link User}s in the {@link Team} with the provided id.
      *
-     * @param id The id of the team from which to return the members.
-     * @return The list of the {@link User}s in the {@link Team} with the provided identifier.
-     * @throws UnknownTeamIdException When the team with the provided id doesn't exist.
+     * @param id The id of the {@link Team} from which to return the members.
+     * @return The list of the {@link User}s in the {@link Team} with the provided id.
+     * @throws UnknownTeamIdException When the {@link Team} with the provided id doesn't exist.
      */
     List<User> getTeamMembers(int id) throws UnknownTeamIdException;
 
     /**
-     * Returns a list of the {@link User}s in the {@link Team} with the teamName.
+     * Returns a list of the {@link User}s in the {@link Team} referenced by the provided {@link TeamReference}.
      *
-     * @param teamName The teamName of the team from which to return the members.
-     * @return The list of the {@link User}s in the {@link Team} with the teamName teamName.
-     * @throws UnknownTeamNameException When the team with the teamName teamName doesn't exist.
+     * @param teamReference The {@link TeamReference} of the {@link Team} from which to return the members.
+     * @return The list of the {@link User}s in the {@link Team} referenced by the provided {@link TeamReference}.
+     * @throws UnknownTeamReferenceException When the {@link Team} referenced by the provided {@link TeamReference}
+     *                                       doesn't exist.
      */
-    List<User> getTeamMembers(String teamName) throws UnknownTeamNameException;
+    List<User> getTeamMembers(TeamReference teamReference) throws UnknownTeamReferenceException;
 
     /**
      * Inserts the provided {@link Team} into the {@link TeamDAO}. Relations to members of the {@link Team}

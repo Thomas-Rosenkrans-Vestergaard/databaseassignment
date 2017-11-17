@@ -16,6 +16,7 @@ public class UnknownTeamReferenceException extends UnknownTeamIdException
     public UnknownTeamReferenceException(TeamReference teamReference)
     {
         super(teamReference.getId());
+
         this.teamReference = teamReference;
     }
 

@@ -37,9 +37,8 @@ public class MysqlTeamDAOTest
     }
 
     @Test
-    public void testGetTeamByID() throws Exception
+    public void getTeamByID() throws Exception
     {
-        // positive test
         Team team = dao.getTeam(1);
         assertNotNull(team);
         assertEquals(team.getName(), "A");
@@ -47,16 +46,29 @@ public class MysqlTeamDAOTest
     }
 
     @Test(expected = UnknownTeamIdException.class)
-    public void testGetTeamThrowsUnknownTeamIdException() throws Exception
+    public void getTeamThrowsUnknownTeamIdException() throws Exception
     {
-        // Negative test
         dao.getTeam(99);
     }
 
     @Test
-    public void testGetTeamByTeamName() throws Exception
+    public void getTeamByTeamReference() throws Exception
     {
-        // positive test
+        Team team = dao.getTeam(TeamReference.of(1));
+        assertNotNull(team);
+        assertEquals(team.getName(), "A");
+        assertEquals(team.getMembers().size(), 3);
+    }
+
+    @Test(expected = UnknownTeamReferenceException.class)
+    public void getTeamByTeamReferenceThrowsUnknownTeamReferenceException() throws Exception
+    {
+        dao.getTeam(TeamReference.of(100));
+    }
+
+    @Test
+    public void getTeamByTeamName() throws Exception
+    {
         Team team = dao.getTeam("A");
         assertNotNull(team);
         assertEquals(team.getId(), 1);
@@ -64,42 +76,37 @@ public class MysqlTeamDAOTest
     }
 
     @Test(expected = UnknownTeamNameException.class)
-    public void testGetTeamThrowsUnknownTeamNameException() throws Exception
+    public void getTeamByNameThrowsUnknownTeamNameException() throws Exception
     {
-        // negative test
         dao.getTeam("Not a team name!");
     }
 
     @Test
-    public void testGetTeamMembersByID() throws Exception
+    public void getTeamMembersByID() throws Exception
     {
-        // positive test
         List<User> teamMembers = dao.getTeamMembers(1);
         assertNotNull(teamMembers);
         assertEquals(3, teamMembers.size());
     }
 
     @Test(expected = UnknownTeamIdException.class)
-    public void testGetTeamMembersByIDThrowsUnknownTeamIdException() throws Exception
+    public void getTeamMembersByIDThrowsUnknownTeamIdException() throws Exception
     {
-        // negative test
         dao.getTeamMembers(99);
     }
 
     @Test
-    public void testGetTeamMembersByTeamName() throws Exception
+    public void getTeamMembersByTeamReference() throws Exception
     {
-        // positive test
-        List<User> teamMembers = dao.getTeamMembers("A");
+        List<User> teamMembers = dao.getTeamMembers(TeamReference.of(1));
         assertNotNull(teamMembers);
         assertEquals(3, teamMembers.size());
     }
 
-    @Test(expected = UnknownTeamNameException.class)
-    public void testGetTeamMembersByTeamNameThrowsUnknownTeamNameException() throws Exception
+    @Test(expected = UnknownTeamReferenceException.class)
+    public void getTeamMembersByTeamReferenceThrownUnknownTeamReferenceException() throws Exception
     {
-        // negative test
-        dao.getTeamMembers("UNKNOWN TEAM NAME!");
+        dao.getTeamMembers(TeamReference.of(99));
     }
 
     @Test

@@ -16,6 +16,7 @@ public class UnknownUserReferenceException extends UnknownUserIdException
     public UnknownUserReferenceException(UserReference userReference)
     {
         super(userReference.getId());
+
         this.userReference = userReference;
     }
 

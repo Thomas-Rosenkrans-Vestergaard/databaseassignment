@@ -10,8 +10,17 @@ public class UnknownTeamReferenceExceptionTest
     @Test
     public void getTeamReference() throws Exception
     {
-        int expected = 324;
+        TeamReference expected = new TeamReference(56);
+        UnknownTeamReferenceException exception = new UnknownTeamReferenceException(expected);
+        assertEquals(expected, exception.getTeamReference());
+    }
+
+    @Test
+    public void getUnknownId() throws Exception
+    {
+        int expected = 56;
         TeamReference teamReference = new TeamReference(expected);
-        assertEquals(expected, teamReference.getId());
+        UnknownTeamReferenceException exception = new UnknownTeamReferenceException(teamReference);
+        assertEquals(expected, exception.getUnknownId());
     }
 }

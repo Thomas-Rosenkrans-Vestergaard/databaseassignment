@@ -1,18 +1,17 @@
 package tvestergaard.databaseassignment.database.users;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import org.omg.CORBA.UnknownUserException;
 import tvestergaard.databaseassignment.database.AbstractMysqlDAO;
 import tvestergaard.databaseassignment.database.OpenDAOException;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Implementation of the {@link UserDAO} interface. Users are retrieved from a provided {@link MysqlDataSource}.
- */
 public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
 {
 
@@ -58,26 +57,30 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
     }
 
     /**
-     * Returns the user with the provided id in the {@link DataSource}.
+     * Returns the {@link User} with the provided id in the {@link UserDAO}.
      *
-     * @param userReference The {@link UserReference} of the user to retrieve.
-     * @return The user with the provided id in the {@link DataSource}. Returns <code>null</code> in case
-     * no user with the provided constrain exists.
-     * @throws UnknownUserReferenceException When the provided {@link UserReference} doesn't exist.
+     * @param id The id of the {@link User} to retrieve.
+     * @return The {@link User} referenced by the provided id in the {@link UserDAO}.
+     * @throws UnknownUserIdException When the {@link User} referenced by the provided id doesn't exist.
      */
     @Override
-    public User getUser(UserReference userReference) throws UnknownUserReferenceException
+    public User getUser(int id) throws UnknownUserIdException
     {
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE user_id = ?");
-            statement.setInt(1, userReference.getId());
+            statement.setInt(1, id);
             ResultSet teams = statement.executeQuery();
-            if (!teams.first())
-                throw new UnknownUserReferenceException(userReference);
 
-            return new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
-                    (PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN));
-        } catch (UnknownUserReferenceException e) {
+            if (!teams.first())
+                throw new UnknownUserIdException(id);
+
+            return new User(
+                    teams.getInt(ID_COLUMN),
+                    teams.getString(USERNAME_COLUMN),
+                    teams.getString(PASSWORD_COLUMN),
+                    teams.getBoolean(ADMIN_COLUMN));
+
+        } catch (UnknownUserIdException e) {
             throw e;
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -85,12 +88,29 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
     }
 
     /**
-     * Returns the user with the provided username in the {@link DataSource}.
+     * Returns the {@link User} referenced by the provided {@link UserReference} in the {@link UserDAO}.
      *
-     * @param username The username of the user to retrieve.
-     * @return The user with the provided username in the {@link DataSource}. Returns <code>null</code> in
-     * case no user with the provided constrain exists.
-     * @throws UnknownUsernameException When a user with the provided username doesn't exist.
+     * @param userReference The {@link UserReference} referencing the {@link User} to retrieve.
+     * @return The {@link User} referenced by the provided {@link UserReference} in the {@link UserDAO}.
+     * @throws UnknownUserReferenceException When the {@link User} referenced by the provided {@link UserReference}
+     *                                       doesn't exist.
+     */
+    @Override
+    public User getUser(UserReference userReference) throws UnknownUserReferenceException
+    {
+        try {
+            return getUser(userReference.getId());
+        } catch (UnknownUserIdException e) {
+            throw new UnknownUserReferenceException(userReference);
+        }
+    }
+
+    /**
+     * Returns the {@link User} with the provided username in the {@link UserDAO}.
+     *
+     * @param username The username of the {@link User} to retrieve.
+     * @return The {@link User} with the provided username in the {@link UserDAO}.
+     * @throws UnknownUsernameException When a {@link User} with the provided username doesn't exist.
      */
     @Override
     public User getUser(String username) throws UnknownUsernameException
@@ -99,10 +119,16 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE username = ?");
             statement.setString(1, username);
             ResultSet teams = statement.executeQuery();
+
             if (!teams.first())
                 throw new UnknownUsernameException(username);
-            return new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
-                    (PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN));
+
+            return new User(
+                    teams.getInt(ID_COLUMN),
+                    teams.getString(USERNAME_COLUMN),
+                    teams.getString(PASSWORD_COLUMN),
+                    teams.getBoolean(ADMIN_COLUMN));
+
         } catch (UnknownUsernameException e) {
             throw e;
         } catch (Exception e) {
@@ -111,10 +137,9 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
     }
 
     /**
-     * Inserts the provided {@link User} into the {@link UserDAO}. Relations to members of the {@link User}
-     * are also created.
+     * Inserts the provided {@link User} into the {@link UserDAO}.
      *
-     * @param userBuilder The {@link UserBuilder} to model the {@link User} to insert into the {@link UserDAO}.
+     * @param userBuilder The {@link UserBuilder} used to model the {@link User} to insert into the {@link UserDAO}.
      * @return The newly created {@link User} record.
      */
     @Override
@@ -142,9 +167,9 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
 
                 connection.commit();
 
-                return getUser(UserReference.of(userId));
+                return getUser(userId);
 
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 connection.rollback();
                 throw e;
             } finally {
@@ -166,11 +191,44 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
     @Override
     public void updateUser(User user) throws UnknownUserException
     {
+        String userSQL = String.format("UPDATE users SET `%s` = ? WHERE user_id = ?;", USERNAME_COLUMN);
 
+        PreparedStatement teamCheckNameStatement = null;
+        PreparedStatement teamStatement = null;
+
+        try {
+
+            try {
+
+                teamStatement = connection.prepareStatement(userSQL);
+                teamStatement.setString(1, user.getUsername());
+                teamStatement.setInt(2, user.getId());
+                int updated = teamStatement.executeUpdate();
+
+                if (updated < 1)
+                    throw new UnknownUserException(user);
+
+                connection.commit();
+
+            } catch (Exception e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                if (teamCheckNameStatement != null)
+                    teamCheckNameStatement.close();
+                if (teamStatement != null)
+                    teamStatement.close();
+            }
+
+        } catch (UnknownUserException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     /**
-     * Deletes the provided {@link User} from the provided {@link UserDAO}.
+     * Deletes the provided {@link UserReference} from the {@link UserDAO}.
      *
      * @param user The {@link UserReference} to delete from the {@link UserDAO}.
      * @throws UnknownUserReferenceException When the provided {@link UserReference} doesn't exist in the
@@ -196,14 +254,12 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
                 deleteUserStatement.setInt(1, user.getId());
                 int updated = deleteUserStatement.executeUpdate();
 
-                connection.commit();
-
                 if (updated == 0)
                     throw new UnknownUserReferenceException(user);
 
-            } catch (UnknownUserReferenceException e) {
-                throw e;
-            } catch (SQLException e) {
+                connection.commit();
+
+            } catch (Exception e) {
                 connection.rollback();
                 throw e;
             } finally {
