@@ -26,7 +26,8 @@ public class CloseDAOException extends DAOException
      *
      * @return The cause of the exception.
      */
-    @Override public Exception getCause()
+    @Override
+    public Exception getCause()
     {
         return this.cause;
     }

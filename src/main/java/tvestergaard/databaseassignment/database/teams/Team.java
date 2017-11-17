@@ -152,7 +152,8 @@ public class Team extends TeamReference
         return false;
     }
 
-    @Override public String toString()
+    @Override
+    public String toString()
     {
         return "Team{" +
                 "id=" + getId() +
@@ -160,7 +161,8 @@ public class Team extends TeamReference
                 '}';
     }
 
-    @Override public boolean equals(Object o)
+    @Override
+    public boolean equals(Object o)
     {
         if (this == o) return true;
         if (!(o instanceof Team)) return false;
@@ -170,7 +172,8 @@ public class Team extends TeamReference
                 Objects.equals(getId(), team.getId());
     }
 
-    @Override public int hashCode()
+    @Override
+    public int hashCode()
     {
         return Objects.hash(getId(), getName(), getMembers());
     }

@@ -36,7 +36,8 @@ public abstract class AbstractMysqlDAO implements DAO
      *
      * @throws CloseDAOException When the {@link DAO} cannot be closed.
      */
-    @Override public void close() throws CloseDAOException
+    @Override
+    public void close() throws CloseDAOException
     {
         try {
             connection.close();

@@ -98,10 +98,9 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
      * Returns the team with the provided id in the {@link DataSource}.
      *
      * @param id The id of the team to retrieve.
-     * @return The team with the provided id in the {@link DataSource}. Returns <code>null</code> in case
-     * no team with the provided constrain exists.
-     * @throws UnknownTeamIdException When a team with the provided id
-     *                                doesn't exist.
+     * @return The team with the provided id in the {@link DataSource}. Returns <code>null</code> in case no team
+     * with the provided constrain exists.
+     * @throws UnknownTeamIdException When a team with the provided id doesn't exist.
      */
     @Override
     public Team getTeam(int id) throws UnknownTeamIdException
@@ -119,23 +118,16 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                 throw new UnknownTeamIdException(id);
 
             Team team = new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
-            int userId = teams.getInt(USER_ID_COLUMN);
-            if (!teams.wasNull()) {
-                team.addMember(new User(userId, teams.getString
-                        (USERNAME_COLUMN), teams.getString
-                        (PASSWORD_COLUMN), teams.getBoolean
-                        (ADMIN_COLUMN)));
-            }
 
-            while (teams.next()) {
-                userId = teams.getInt(USER_ID_COLUMN);
+            do {
+                int userId = teams.getInt(USER_ID_COLUMN);
                 if (!teams.wasNull()) {
                     team.addMember(new User(userId, teams.getString
                             (USERNAME_COLUMN), teams.getString
                             (PASSWORD_COLUMN), teams.getBoolean
                             (ADMIN_COLUMN)));
                 }
-            }
+            } while (teams.next());
 
             teams.close();
             statement.close();
@@ -155,8 +147,7 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
      * @param teamName The teamName of the team to retrieve.
      * @return The team with the provided teamName in the {@link DataSource}. Returns <code>null</code> in
      * case no team with the provided constrain exists.
-     * @throws UnknownTeamNameException When the provided teamName doesn't
-     *                                  exist.
+     * @throws UnknownTeamNameException When the provided teamName doesn't exist.
      */
     @Override
     public Team getTeam(String teamName) throws UnknownTeamNameException
@@ -176,23 +167,16 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                 throw new UnknownTeamNameException(teamName);
 
             Team team = new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
-            int userId = teams.getInt(USER_ID_COLUMN);
-            if (!teams.wasNull()) {
-                team.addMember(new User(userId, teams.getString
-                        (USERNAME_COLUMN), teams.getString
-                        (PASSWORD_COLUMN), teams.getBoolean
-                        (ADMIN_COLUMN)));
-            }
 
-            while (teams.next()) {
-                userId = teams.getInt(USER_ID_COLUMN);
+            do {
+                int userId = teams.getInt(USER_ID_COLUMN);
                 if (!teams.wasNull()) {
                     team.addMember(new User(userId, teams.getString
                             (USERNAME_COLUMN), teams.getString
                             (PASSWORD_COLUMN), teams.getBoolean
                             (ADMIN_COLUMN)));
                 }
-            }
+            } while (teams.next());
 
             teams.close();
             statement.close();
@@ -207,14 +191,11 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
     }
 
     /**
-     * Returns a list of the {@link User}s in the {@link Team} with the
-     * provided identifier.
+     * Returns a list of the {@link User}s in the {@link Team} with the provided identifier.
      *
      * @param id The id of the team from which to return the members.
-     * @return The list of the {@link User}s in the {@link Team} with the
-     * provided identifier.
-     * @throws UnknownTeamIdException When the team with the provided id
-     *                                doesn't exist.
+     * @return The list of the {@link User}s in the {@link Team} with the provided identifier.
+     * @throws UnknownTeamIdException When the team with the provided id doesn't exist.
      */
     @Override
     public List<User> getTeamMembers(int id) throws UnknownTeamIdException
@@ -259,10 +240,8 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
      * teamName teamName.
      *
      * @param teamName The teamName of the team from which to return the members.
-     * @return The list of the {@link User}s in the {@link Team} with the
-     * teamName teamName.
-     * @throws UnknownTeamNameException When the team with the teamName teamName
-     *                                  doesn't exist.
+     * @return The list of the {@link User}s in the {@link Team} with the teamName.
+     * @throws UnknownTeamNameException When the team with the teamName teamName doesn't exist.
      */
     @Override
     public List<User> getTeamMembers(String teamName) throws UnknownTeamNameException
@@ -311,7 +290,8 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
      * @return The newly created {@link Team} record.
      * @throws TeamNameTakenException When the {@link TeamBuilder} name is already taken.
      */
-    @Override public Team insertTeam(TeamBuilder teamBuilder) throws TeamNameTakenException
+    @Override
+    public Team insertTeam(TeamBuilder teamBuilder) throws TeamNameTakenException
     {
         String teamCheckSQL = String.format("SELECT count(*) FROM teams WHERE team_name = ?;");
         String teamSQL = String.format("INSERT INTO teams (%s) VALUES (?);", TEAM_NAME_COLUMN);
@@ -379,7 +359,8 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
      * @throws UnknownTeamException   When the {@link Team} to update can't be found in the {@link tvestergaard.databaseassignment.database.DAO}.
      * @throws TeamNameTakenException When the name to update the {@link Team} to is already taken.
      */
-    @Override public void updateTeam(Team team) throws UnknownTeamException, TeamNameTakenException
+    @Override
+    public void updateTeam(Team team) throws UnknownTeamException, TeamNameTakenException
     {
         String teamCheckIDSQL = String.format("SELECT count(*) FROM teams WHERE team_id = ?;");
         String teamCheckNameSQL = String.format("SELECT count(*) FROM teams WHERE team_name = ?;");
@@ -444,28 +425,20 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
      * @throws UnknownTeamReferenceException When the provided {@link TeamReference} doesn't exist in the
      *                                       {@link DataSource}.
      */
-    @Override public void deleteTeam(TeamReference team) throws UnknownTeamReferenceException
+    @Override
+    public void deleteTeam(TeamReference team) throws UnknownTeamReferenceException
     {
-        String selectMembersSQL = String.format("SELECT * FROM team_members WHERE `%s` = ?;", TEAM_ID_COLUMN);
-        String deleteMembersSQL = String.format("DELETE FROM team_members WHERE `%s` = ? && `%s` = ?;", TEAM_MEMBERS_TEAM_COLUMN, TEAM_MEMBERS_USER_COLUMN);
+        String deleteMembersSQL = String.format("DELETE FROM team_members WHERE `%s` = ?;", TEAM_MEMBERS_TEAM_COLUMN);
         String deleteTeamSQL = String.format("DELETE FROM teams WHERE `%s` = ?;", TEAM_ID_COLUMN);
 
-        PreparedStatement selectMembersStatement = null;
         PreparedStatement deleteMembersStatement = null;
         PreparedStatement deleteTeamStatement = null;
 
         try {
 
             try {
-                selectMembersStatement = connection.prepareStatement(selectMembersSQL);
-                selectMembersStatement.setInt(1, team.getId());
-                ResultSet members = selectMembersStatement.executeQuery();
-
                 deleteMembersStatement = connection.prepareStatement(deleteMembersSQL);
-                while (members.next()) {
-                    deleteMembersStatement.setInt(1, team.getId());
-                    deleteMembersStatement.setInt(2, members.getInt(USER_ID_COLUMN));
-                }
+                deleteMembersStatement.setInt(1, team.getId());
 
                 deleteTeamStatement = connection.prepareStatement(deleteTeamSQL);
                 deleteTeamStatement.setInt(1, team.getId());
@@ -482,8 +455,6 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                 connection.rollback();
                 throw e;
             } finally {
-                if (selectMembersStatement != null)
-                    selectMembersStatement.close();
                 if (deleteMembersStatement != null)
                     deleteMembersStatement.close();
                 if (deleteTeamStatement != null)
