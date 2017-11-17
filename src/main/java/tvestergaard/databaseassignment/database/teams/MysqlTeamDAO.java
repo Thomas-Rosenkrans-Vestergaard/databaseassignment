@@ -435,26 +435,17 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
     @Override
     public void deleteTeam(TeamReference team) throws UnknownTeamReferenceException
     {
-        String selectMembersSQL = String.format("SELECT * FROM team_members WHERE `%s` = ?;", TEAM_ID_COLUMN);
-        String deleteMembersSQL = String.format("DELETE FROM team_members WHERE `%s` = ? && `%s` = ?;", TEAM_MEMBERS_TEAM_COLUMN, TEAM_MEMBERS_USER_COLUMN);
+        String deleteMembersSQL = String.format("DELETE FROM team_members WHERE `%s` = ?;", TEAM_MEMBERS_TEAM_COLUMN);
         String deleteTeamSQL = String.format("DELETE FROM teams WHERE `%s` = ?;", TEAM_ID_COLUMN);
 
-        PreparedStatement selectMembersStatement = null;
         PreparedStatement deleteMembersStatement = null;
         PreparedStatement deleteTeamStatement = null;
 
         try {
 
             try {
-                selectMembersStatement = connection.prepareStatement(selectMembersSQL);
-                selectMembersStatement.setInt(1, team.getId());
-                ResultSet members = selectMembersStatement.executeQuery();
-
                 deleteMembersStatement = connection.prepareStatement(deleteMembersSQL);
-                while (members.next()) {
-                    deleteMembersStatement.setInt(1, team.getId());
-                    deleteMembersStatement.setInt(2, members.getInt(USER_ID_COLUMN));
-                }
+                deleteMembersStatement.setInt(1, team.getId());
 
                 deleteTeamStatement = connection.prepareStatement(deleteTeamSQL);
                 deleteTeamStatement.setInt(1, team.getId());
@@ -471,8 +462,6 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                 connection.rollback();
                 throw e;
             } finally {
-                if (selectMembersStatement != null)
-                    selectMembersStatement.close();
                 if (deleteMembersStatement != null)
                     deleteMembersStatement.close();
                 if (deleteTeamStatement != null)
