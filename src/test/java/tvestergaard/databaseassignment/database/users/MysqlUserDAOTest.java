@@ -6,12 +6,10 @@ import tvestergaard.databaseassignment.database.MysqlMemoryDatabase;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class MysqlUserDAOTest
 {
-
     private MysqlUserDAO dao;
 
     @Before
@@ -66,4 +64,33 @@ public class MysqlUserDAOTest
     {
         dao.getUser("3243");
     }
+
+    @Test
+    public void insertUser() throws Exception
+    {
+        String expectedUsername = "D";
+        String expectedPassword = "Password";
+        boolean expectedAdmin = false;
+
+        UserBuilder before = new UserBuilder()
+                .setUsername(expectedUsername)
+                .setPassword(expectedPassword)
+                .setAdmin(expectedAdmin);
+
+        try {
+            dao.getUser(expectedUsername);
+            fail();
+        } catch (Exception e) {
+        }
+
+        User user = dao.insertUser(before);
+
+        assertEquals(expectedUsername, user.getUsername());
+        assertEquals(expectedPassword, user.getPassword());
+        assertEquals(expectedAdmin, user.isAdmin());
+
+        dao.getUser(expectedUsername);
+    }
+
+
 }
