@@ -18,12 +18,12 @@ public interface UserDAO extends DAO
     /**
      * Returns the user with the provided id in the {@link UserDAO}.
      *
-     * @param id The id of the user to retrieve.
+     * @param userReference The {@link UserReference} of the user to retrieve.
      * @return The user with the provided id in the {@link UserDAO}. Returns <code>null</code> in case
      * no user with the provided constrain exists.
-     * @throws UnknownUserIdException When a user with the provided id doesn't exist.
+     * @throws UnknownUserReferenceException When a user with the provided {@link UserReference} doesn't exist.
      */
-    User getUser(int id) throws UnknownUserIdException;
+    User getUser(UserReference userReference) throws UnknownUserReferenceException;
 
     /**
      * Returns the user with the provided username in the {@link UserDAO}.

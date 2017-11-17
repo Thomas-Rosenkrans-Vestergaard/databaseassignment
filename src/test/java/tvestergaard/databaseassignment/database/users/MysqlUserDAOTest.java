@@ -34,7 +34,7 @@ public class MysqlUserDAOTest
     @Test
     public void getUserByID() throws Exception
     {
-        User user = dao.getUser(1);
+        User user = dao.getUser(UserReference.of(1));
         assertNotNull(user);
         assertEquals(1, user.getId());
         assertEquals("Anders And", user.getUsername());
@@ -43,10 +43,10 @@ public class MysqlUserDAOTest
     }
 
 
-    @Test(expected = UnknownUserIdException.class)
+    @Test(expected = UnknownUserReferenceException.class)
     public void getUserByIDThrowsUnknownUserIdException() throws Exception
     {
-        dao.getUser(99);
+        dao.getUser(UserReference.of(100));
     }
 
     @Test
@@ -65,5 +65,21 @@ public class MysqlUserDAOTest
     public void getUserByUsernameThrowsUnknownUsernameException() throws Exception
     {
         dao.getUser("3243");
+    }
+
+    @Test(expected = UnknownUserReferenceException.class)
+    public void deleteUser() throws Exception
+    {
+        User before = dao.getUser(UserReference.of(1));
+        dao.deleteUser(before);
+        dao.getUser(UserReference.of(1));
+    }
+
+    @Test(expected = UnknownUserReferenceException.class)
+    public void deleteUserThrowsUnknownUserReferenceException() throws Exception
+    {
+        User before = dao.getUser(UserReference.of(1));
+        dao.deleteUser(before);
+        dao.getUser(UserReference.of(1));
     }
 }
