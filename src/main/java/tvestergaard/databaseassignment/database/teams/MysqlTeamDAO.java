@@ -11,8 +11,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-0
-
 public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
 {
 
