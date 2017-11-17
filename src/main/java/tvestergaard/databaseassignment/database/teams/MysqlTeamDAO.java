@@ -118,23 +118,16 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                 throw new UnknownTeamIdException(id);
 
             Team team = new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
-            int userId = teams.getInt(USER_ID_COLUMN);
-            if (!teams.wasNull()) {
-                team.addMember(new User(userId, teams.getString
-                        (USERNAME_COLUMN), teams.getString
-                        (PASSWORD_COLUMN), teams.getBoolean
-                        (ADMIN_COLUMN)));
-            }
 
-            while (teams.next()) {
-                userId = teams.getInt(USER_ID_COLUMN);
+            do {
+                int userId = teams.getInt(USER_ID_COLUMN);
                 if (!teams.wasNull()) {
                     team.addMember(new User(userId, teams.getString
                             (USERNAME_COLUMN), teams.getString
                             (PASSWORD_COLUMN), teams.getBoolean
                             (ADMIN_COLUMN)));
                 }
-            }
+            } while (teams.next());
 
             teams.close();
             statement.close();
