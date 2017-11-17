@@ -203,7 +203,9 @@ public class MysqlTeamDAOTest
             fail();
         } catch (TeamNameTakenException e) {
             Team after = dao.getTeam(1);
-            assertEquals(before, after);
+            assertEquals(1, after.getId());
+            assertEquals("A", after.getName());
+            assertEquals(3, before.getMembers().size());
         }
     }
 

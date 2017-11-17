@@ -116,19 +116,11 @@ public class TeamTest
         assertFalse(team.hasMember(0));
     }
 
-    @Test
+    @Test(expected = UnknownUserIdException.class)
     public void removeMemberByIDThrowsUnknownUserIdException() throws Exception
     {
         Team team = new Team(0, null);
-        User user = new User(0, "A", null, false);
-        team.addMember(user);
-        assertTrue(team.hasMember(0));
-        try {
-            team.removeMember(0);
-            fail();
-        } catch (Exception e) {
-            assertTrue(team.hasMember(0));
-        }
+        team.removeMember(0);
     }
 
     @Test
@@ -142,19 +134,11 @@ public class TeamTest
         assertFalse(team.hasMember(0));
     }
 
-    @Test
+    @Test(expected = UnknownUserReferenceException.class)
     public void removeMemberByUserReferenceThrowsUnknownUserReferenceException() throws Exception
     {
         Team team = new Team(0, null);
-        User user = new User(0, "A", null, false);
-        team.addMember(user);
-        assertTrue(team.hasMember(0));
-        try {
-            team.removeMember(UserReference.of(0));
-            fail();
-        } catch (Exception e) {
-            assertTrue(team.hasMember(0));
-        }
+        team.removeMember(UserReference.of(0));
     }
 
     @Test
@@ -168,19 +152,12 @@ public class TeamTest
         assertFalse(team.hasMember(0));
     }
 
-    @Test
+    @Test(expected = UnknownUserException.class)
     public void removeMemberByUserThrowsUnknownUserException() throws Exception
     {
         Team team = new Team(0, null);
         User user = new User(0, "A", null, false);
-        team.addMember(user);
-        assertTrue(team.hasMember(0));
-        try {
-            team.removeMember(user);
-            fail();
-        } catch (Exception e) {
-            assertTrue(team.hasMember(0));
-        }
+        team.removeMember(user);
     }
 
     @Test
