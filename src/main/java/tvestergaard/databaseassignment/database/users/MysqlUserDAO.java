@@ -20,6 +20,7 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
     private static final String USERNAME_COLUMN = "username";
     private static final String PASSWORD_COLUMN = "password";
     private static final String ADMIN_COLUMN = "admin";
+    private static final String TEAM_MEMBER_ID_COLUMN = "user_id";
 
     /**
      * Creates a new {@link MysqlUserDAO}.
@@ -59,24 +60,24 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
     /**
      * Returns the user with the provided id in the {@link DataSource}.
      *
-     * @param id The id of the user to retrieve.
+     * @param userReference The {@link UserReference} of the user to retrieve.
      * @return The user with the provided id in the {@link DataSource}. Returns <code>null</code> in case
      * no user with the provided constrain exists.
-     * @throws UnknownUserIdException When a user with the provided id doesn't exist.
+     * @throws UnknownUserReferenceException When the provided {@link UserReference} doesn't exist.
      */
     @Override
-    public User getUser(int id) throws UnknownUserIdException
+    public User getUser(UserReference userReference) throws UnknownUserReferenceException
     {
         try {
             PreparedStatement statement = connection.prepareStatement("SELECT * FROM users WHERE user_id = ?");
-            statement.setInt(1, id);
+            statement.setInt(1, userReference.getId());
             ResultSet teams = statement.executeQuery();
             if (!teams.first())
-                throw new UnknownUserIdException(id);
+                throw new UnknownUserReferenceException(userReference);
 
             return new User(teams.getInt(ID_COLUMN), teams.getString(USERNAME_COLUMN), teams.getString
                     (PASSWORD_COLUMN), teams.getBoolean(ADMIN_COLUMN));
-        } catch (UnknownUserIdException e) {
+        } catch (UnknownUserReferenceException e) {
             throw e;
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -141,7 +142,7 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
 
                 connection.commit();
 
-                return getUser(userId);
+                return getUser(UserReference.of(userId));
 
             } catch (SQLException e) {
                 connection.rollback();
@@ -178,6 +179,44 @@ public class MysqlUserDAO extends AbstractMysqlDAO implements UserDAO
     @Override
     public void deleteUser(UserReference user) throws UnknownUserReferenceException
     {
+        String deleteMembersSQL = String.format("DELETE FROM team_members WHERE `%s` = ?;", TEAM_MEMBER_ID_COLUMN);
+        String deleteUserSQL = String.format("DELETE FROM users WHERE `%s` = ?;", ID_COLUMN);
 
+        PreparedStatement deleteMembersStatement = null;
+        PreparedStatement deleteUserStatement = null;
+
+        try {
+
+            try {
+                deleteMembersStatement = connection.prepareStatement(deleteMembersSQL);
+                deleteMembersStatement.setInt(1, user.getId());
+                deleteMembersStatement.executeUpdate();
+
+                deleteUserStatement = connection.prepareStatement(deleteUserSQL);
+                deleteUserStatement.setInt(1, user.getId());
+                int updated = deleteUserStatement.executeUpdate();
+
+                connection.commit();
+
+                if (updated == 0)
+                    throw new UnknownUserReferenceException(user);
+
+            } catch (UnknownUserReferenceException e) {
+                throw e;
+            } catch (SQLException e) {
+                connection.rollback();
+                throw e;
+            } finally {
+                if (deleteMembersStatement != null)
+                    deleteMembersStatement.close();
+                if (deleteUserStatement != null)
+                    deleteUserStatement.close();
+            }
+
+        } catch (UnknownUserReferenceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

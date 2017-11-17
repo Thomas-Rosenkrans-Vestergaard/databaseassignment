@@ -164,9 +164,11 @@ public class MysqlTeamDAOTest
     @Test
     public void deleteTeam() throws Exception
     {
+        Team team = dao.getTeam(1);
+        dao.deleteTeam(team);
+
         try {
-            Team team = dao.getTeam(1);
-            dao.deleteTeam(team);
+            dao.getTeam(1);
             fail();
         } catch (Exception e) {
 

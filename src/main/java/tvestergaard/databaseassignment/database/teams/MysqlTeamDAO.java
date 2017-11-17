@@ -78,11 +78,6 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
                 }
             }
 
-            if (teams.next()) {
-                Team team = new Team(teams.getInt(TEAM_ID_COLUMN), teams.getString(TEAM_NAME_COLUMN));
-                result.add(team);
-            }
-
             teams.close();
             statement.close();
 
@@ -442,6 +437,7 @@ public class MysqlTeamDAO extends AbstractMysqlDAO implements TeamDAO
             try {
                 deleteMembersStatement = connection.prepareStatement(deleteMembersSQL);
                 deleteMembersStatement.setInt(1, team.getId());
+                deleteMembersStatement.executeUpdate();
 
                 deleteTeamStatement = connection.prepareStatement(deleteTeamSQL);
                 deleteTeamStatement.setInt(1, team.getId());
